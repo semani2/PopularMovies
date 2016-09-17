@@ -24,4 +24,8 @@ public class Constants {
     public static final String JSON_TITLE = "title";
     public static final String JSON_RATING = "vote_average";
 
+    /* Preferences */
+    public static final String PREFERNCE_POPULARITY = "popularity";
+    public static final String PREFERENCE_RATING = "rating";
+
 }

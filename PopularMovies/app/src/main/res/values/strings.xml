@@ -3,4 +3,21 @@
 
     <!-- Menu items -->
     <string name="str_action_settings">Settings</string>
+    
+    <!-- Preference Settings Strings -->
+
+    <string name="str_setting_sort">Sort order</string>
+    <string name="str_setting_sort_key">sort_order</string>
+    <string-array name="setting_sort_entries">
+        <item>Most popular</item>
+        <item>Top rated</item>
+    </string-array>
+
+    <string name="setting_sort_entry_values">
+        <item>popularity</item>
+        <item>rating</item>
+    </string>
+
+    <string name="setting_sort_def_value">popularity</string>
+    
 </resources>
