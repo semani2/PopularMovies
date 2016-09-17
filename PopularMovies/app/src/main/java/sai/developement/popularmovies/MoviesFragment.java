@@ -90,6 +90,7 @@ public class MoviesFragment extends Fragment {
     }
 
     public void updateMovies() {
+        mProgressBar.setVisibility(View.VISIBLE);
         new MoviesFetchTask()
                 .execute();
     }
@@ -175,11 +176,6 @@ public class MoviesFragment extends Fragment {
             }
 
             return movieList;
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-            mProgressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
