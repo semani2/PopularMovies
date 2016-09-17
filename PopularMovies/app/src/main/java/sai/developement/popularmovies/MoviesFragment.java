@@ -1,9 +1,11 @@
 package sai.developement.popularmovies;
 
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -84,7 +86,9 @@ public class MoviesFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.action_settings) {
-            //TODO :: Launch settings activity
+            Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -92,19 +96,28 @@ public class MoviesFragment extends Fragment {
     public void updateMovies() {
         mProgressBar.setVisibility(View.VISIBLE);
         new MoviesFetchTask()
-                .execute();
+                .execute(PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.str_setting_sort_key),
+                        getString(R.string.setting_sort_def_value)));
     }
 
-    class MoviesFetchTask extends AsyncTask<Void, Void, List<Movie>> {
+    class MoviesFetchTask extends AsyncTask<String, Void, List<Movie>> {
         private final String TAG = MoviesFetchTask.class.getSimpleName();
         HttpURLConnection mUrlConnection = null;
         BufferedReader mBufferedReader = null;
 
         @Override
-        protected List<Movie> doInBackground(Void... params) {
+        protected List<Movie> doInBackground(String... params) {
             try {
-                //TODO:: get shared preferences from settings to get top rated or popular movies, defaulting to popular for now
-                Uri uri = Uri.parse(Constants.POPULAR_MOVIES_URL).buildUpon()
+                String sortOrder = params[0];
+                String baseURL;
+                if(sortOrder.equalsIgnoreCase(Constants.PREFERNCE_POPULARITY)) {
+                    baseURL = Constants.POPULAR_MOVIES_URL;
+                }
+                else {
+                    baseURL = Constants.TOP_RATED_MOVIES_URL;
+                }
+                Uri uri = Uri.parse(baseURL).buildUpon()
                         .appendQueryParameter(Constants.API_KEY_QUERY_PARAM, APIKeys.MOVIES_DB_KEY)
                         .build();
 

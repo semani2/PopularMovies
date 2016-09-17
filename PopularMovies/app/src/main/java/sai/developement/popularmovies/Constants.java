@@ -8,7 +8,7 @@ public class Constants {
 
     /* Constants for the MOVIES Api */
     public static final String POPULAR_MOVIES_URL = "http://api.themoviedb.org/3/movie/popular";
-    public static final String POPULAR_TOP_RATED_URL = "http://api.themoviedb.org/3/movie/top_rated";
+    public static final String TOP_RATED_MOVIES_URL = "http://api.themoviedb.org/3/movie/top_rated";
     public static final String THUMBNAIL_BASE_URL = "http://image.tmdb.org/t/p/w500/";
     public static final String API_KEY_QUERY_PARAM = "api_key";
     public static final String POPULAR = "popular";
@@ -26,6 +26,5 @@ public class Constants {
 
     /* Preferences */
     public static final String PREFERNCE_POPULARITY = "popularity";
-    public static final String PREFERENCE_RATING = "rating";
 
 }

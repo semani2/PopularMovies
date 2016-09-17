@@ -4,6 +4,6 @@
         android:title="@string/str_setting_sort"
         android:key="@string/str_setting_sort_key"
         android:entries="@array/setting_sort_entries"
-        android:entryValues="@string/setting_sort_entry_values"
-        android:defaultValue="@string/setting_sort_def_value" />
+        android:entryValues="@array/setting_sort_entry_values"
+        android:defaultValue="@string/setting_sort_def_value"/>
 </PreferenceScreen>
