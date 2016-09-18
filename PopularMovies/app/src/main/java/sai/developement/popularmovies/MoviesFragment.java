@@ -132,6 +132,10 @@ public class MoviesFragment extends Fragment {
         }
     }
 
+    /*
+    Code snippet taken from:
+    http://stackoverflow.com/questions/4238921/detect-whether-there-is-an-internet-connection-available-on-android
+     */
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
