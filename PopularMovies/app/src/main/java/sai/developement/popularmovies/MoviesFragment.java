@@ -162,14 +162,19 @@ public class MoviesFragment extends Fragment {
         @Override
         protected List<Movie> doInBackground(String... params) {
             try {
-                String sortOrder = params[0];
                 String baseURL;
-                if(sortOrder.equalsIgnoreCase(Constants.PREFERNCE_POPULARITY)) {
+                if(params == null) {
                     baseURL = Constants.POPULAR_MOVIES_URL;
                 }
                 else {
-                    baseURL = Constants.TOP_RATED_MOVIES_URL;
+                    String sortOrder = params[0];
+                    if (sortOrder.equalsIgnoreCase(Constants.PREFERNCE_POPULARITY)) {
+                        baseURL = Constants.POPULAR_MOVIES_URL;
+                    } else {
+                        baseURL = Constants.TOP_RATED_MOVIES_URL;
+                    }
                 }
+
                 Uri uri = Uri.parse(baseURL).buildUpon()
                         .appendQueryParameter(Constants.API_KEY_QUERY_PARAM, APIKeys.MOVIES_DB_KEY)
                         .build();
@@ -180,25 +185,22 @@ public class MoviesFragment extends Fragment {
                 mUrlConnection.connect();
 
                 InputStream inputStream = mUrlConnection.getInputStream();
-                StringBuffer stringBuffer = new StringBuffer();
+                StringBuilder stringBuilder = new StringBuilder();
                 if (inputStream == null) {
-                    // Nothing to do.
                     return null;
                 }
                 mBufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
                 String line;
                 while ((line = mBufferedReader.readLine()) != null) {
-                    stringBuffer.append(line + "\n");
-                    Log.v(TAG, line);
+                    stringBuilder.append(line + "\n");
                 }
 
-                if (stringBuffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
+                if (stringBuilder.length() == 0) {
                     return null;
                 }
 
-                return getMoviesDataFromJSON(stringBuffer.toString());
+                return getMoviesDataFromJSON(stringBuilder.toString());
             }
             catch (IOException e) {
                 Log.e(TAG, "Error ", e);

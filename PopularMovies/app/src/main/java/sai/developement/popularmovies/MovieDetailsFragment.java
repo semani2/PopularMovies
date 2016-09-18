@@ -29,12 +29,6 @@ import sai.developement.popularmovies.models.Movie;
 public class MovieDetailsFragment extends Fragment {
 
     private Movie movie;
-    private TextView movieTitleTextView;
-    private TextView movieReleaseDateTextView;
-    private TextView movieRatingTextView;
-    private TextView moviePlotTextView;
-    private ImageView movieThumbnailImageView;
-
     public MovieDetailsFragment() {
         // Required empty public constructor
     }
@@ -78,11 +72,11 @@ public class MovieDetailsFragment extends Fragment {
     }
 
     private void initView(View v) {
-        movieTitleTextView = (TextView) v.findViewById(R.id.textview_movie_title);
-        movieReleaseDateTextView = (TextView) v.findViewById(R.id.textview_movie_release_date);
-        movieRatingTextView = (TextView) v.findViewById(R.id.textview_movie_rating);
-        moviePlotTextView = (TextView) v.findViewById(R.id.textview_movie_plot);
-        movieThumbnailImageView = (ImageView) v.findViewById(R.id.imageview_movie_poster);
+        TextView movieTitleTextView = (TextView) v.findViewById(R.id.textview_movie_title);
+        TextView movieReleaseDateTextView = (TextView) v.findViewById(R.id.textview_movie_release_date);
+        TextView movieRatingTextView = (TextView) v.findViewById(R.id.textview_movie_rating);
+        TextView moviePlotTextView = (TextView) v.findViewById(R.id.textview_movie_plot);
+        ImageView movieThumbnailImageView = (ImageView) v.findViewById(R.id.imageview_movie_poster);
 
         movieTitleTextView.setText(movie.getMovieTitle());
         movieRatingTextView.setText(String.valueOf(movie.getMovieRating()).concat("/").concat(String.valueOf(Constants.MAX_RATING)));
