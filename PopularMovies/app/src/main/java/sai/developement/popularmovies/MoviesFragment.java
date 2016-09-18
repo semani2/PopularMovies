@@ -1,13 +1,18 @@
 package sai.developement.popularmovies;
 
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -114,12 +119,39 @@ public class MoviesFragment extends Fragment {
 
     public void updateMovies() {
         if(mMoviesList.size() == 0) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            new MoviesFetchTask()
-                    .execute(PreferenceManager.getDefaultSharedPreferences(getActivity())
-                            .getString(getString(R.string.str_setting_sort_key),
-                                    getString(R.string.setting_sort_def_value)));
+            if(isNetworkAvailable()) {
+                mProgressBar.setVisibility(View.VISIBLE);
+                new MoviesFetchTask()
+                        .execute(PreferenceManager.getDefaultSharedPreferences(getActivity())
+                                .getString(getString(R.string.str_setting_sort_key),
+                                        getString(R.string.setting_sort_def_value)));
+            }
+            else {
+                showNoNetworkDialog();
+            }
         }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void showNoNetworkDialog() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.string_no_network_title))
+                .setMessage(getString(R.string.str_no_network))
+                .setPositiveButton(getString(R.string.str_try_now), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        updateMovies();
+                        dialog.dismiss();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     class MoviesFetchTask extends AsyncTask<String, Void, List<Movie>> {
