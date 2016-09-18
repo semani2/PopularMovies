@@ -11,8 +11,6 @@ public class Constants {
     public static final String TOP_RATED_MOVIES_URL = "http://api.themoviedb.org/3/movie/top_rated";
     public static final String THUMBNAIL_BASE_URL = "http://image.tmdb.org/t/p/w500/";
     public static final String API_KEY_QUERY_PARAM = "api_key";
-    public static final String POPULAR = "popular";
-    public static final String TOP_RATED = "top_rated";
     public static final String GET_REQUEST = "GET";
     public static final int MAX_RATING = 10;
 

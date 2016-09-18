@@ -55,7 +55,7 @@ public class MoviesAdapter extends ArrayAdapter<Movie> {
         return v;
     }
 
-    static class MovieViewHolder {
+    private static class MovieViewHolder {
         ImageView posterImageView;
     }
 }
