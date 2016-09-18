@@ -14,6 +14,7 @@ public class Constants {
     public static final String POPULAR = "popular";
     public static final String TOP_RATED = "top_rated";
     public static final String GET_REQUEST = "GET";
+    public static final int MAX_RATING = 10;
 
     /* Constants for JSON parsing */
     public static final String JSON_RESULTS = "results";
@@ -26,5 +27,9 @@ public class Constants {
 
     /* Preferences */
     public static final String PREFERNCE_POPULARITY = "popularity";
+
+    /* Parcelable Constants */
+    public static final String PARCEL_MOVIES_LIST = "movies";
+    public static final String PARCEL_MOVIE = "movie";
 
 }

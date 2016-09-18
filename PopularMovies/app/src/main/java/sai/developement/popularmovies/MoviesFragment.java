@@ -15,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
@@ -57,6 +58,9 @@ public class MoviesFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        if(savedInstanceState != null && savedInstanceState.containsKey(Constants.PARCEL_MOVIES_LIST)) {
+            mMoviesList = savedInstanceState.getParcelableArrayList(Constants.PARCEL_MOVIES_LIST);
+        }
     }
 
     @Override
@@ -69,6 +73,15 @@ public class MoviesFragment extends Fragment {
         mMoviesAdapter = new MoviesAdapter(getContext(), mMoviesList);
         mMoviesGridView.setAdapter(mMoviesAdapter);
 
+        mMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent detailsIntent = new Intent(getActivity(), DetailsActivity.class);
+                detailsIntent.putExtra(Constants.PARCEL_MOVIE, mMoviesAdapter.getItem(position));
+                startActivity(detailsIntent);
+            }
+        });
+
         return v;
     }
 
@@ -76,6 +89,12 @@ public class MoviesFragment extends Fragment {
     public void onStart() {
         super.onStart();
         updateMovies();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(Constants.PARCEL_MOVIES_LIST, mMoviesList);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -94,11 +113,13 @@ public class MoviesFragment extends Fragment {
     }
 
     public void updateMovies() {
-        mProgressBar.setVisibility(View.VISIBLE);
-        new MoviesFetchTask()
-                .execute(PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getString(getString(R.string.str_setting_sort_key),
-                        getString(R.string.setting_sort_def_value)));
+        if(mMoviesList.size() == 0) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            new MoviesFetchTask()
+                    .execute(PreferenceManager.getDefaultSharedPreferences(getActivity())
+                            .getString(getString(R.string.str_setting_sort_key),
+                                    getString(R.string.setting_sort_def_value)));
+        }
     }
 
     class MoviesFetchTask extends AsyncTask<String, Void, List<Movie>> {
@@ -177,15 +198,14 @@ public class MoviesFragment extends Fragment {
 
             for(int i = 0; i< moviesArray.length(); i++) {
                 JSONObject movieObject = moviesArray.getJSONObject(i);
-                Movie movie = new Movie();
-                movie.setMovieId(movieObject.getString(Constants.JSON_MOVIE_ID));
-                movie.setMovieTitle(movieObject.getString(Constants.JSON_TITLE));
-                movie.setMoviePlot(movieObject.getString(Constants.JSON_OVERVIEW));
-                movie.setMovieRating(movieObject.getDouble(Constants.JSON_RATING));
-                movie.setMovieReleaseDate(movieObject.getString(Constants.JSON_RELEASE_DATE));
-                movie.setPosterRelativeUrl(movieObject.getString(Constants.JSON_POSTER_PATH));
+                String movieId = movieObject.getString(Constants.JSON_MOVIE_ID);
+                final String movieTitle = movieObject.getString(Constants.JSON_TITLE);
+                final String moviePlot = movieObject.getString(Constants.JSON_OVERVIEW);
+                final double movieRating = movieObject.getDouble(Constants.JSON_RATING);
+                final String movieReleaseDate = movieObject.getString(Constants.JSON_RELEASE_DATE);
+                final String posterRelativePath = movieObject.getString(Constants.JSON_POSTER_PATH);
 
-                movieList.add(movie);
+                movieList.add(new Movie(movieId, movieTitle, posterRelativePath, moviePlot, movieRating, movieReleaseDate));
             }
 
             return movieList;

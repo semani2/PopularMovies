@@ -17,7 +17,9 @@ public class DetailsActivity extends AppCompatActivity {
         super.onResume();
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, MoviesFragment.newInstance());
+        Bundle data = new Bundle();
+        data.putParcelable(Constants.PARCEL_MOVIE, getIntent().getParcelableExtra(Constants.PARCEL_MOVIE));
+        transaction.replace(R.id.fragment_container, MovieDetailsFragment.newInstance(data));
         transaction.commit();
     }
 }

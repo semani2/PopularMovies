@@ -1,13 +1,64 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/layout_padding"
     tools:context="sai.developement.popularmovies.MovieDetailsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            style="@style/MovieDetailsTitleTextView"
+            android:id="@+id/textview_movie_title" />
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/layout_padding"
+            android:layout_marginEnd="@dimen/layout_padding">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/details_title_margin">
+                <ImageView
+                    android:layout_width="@dimen/details_thumbnail_width"
+                    android:layout_height="@dimen/details_thumnbail_height"
+                    android:id="@+id/imageview_movie_poster"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="@dimen/details_image_margin">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/textview_movie_release_date"
+                        android:textSize="@dimen/release_date_text_size"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/textview_movie_rating"
+                        android:textSize="@dimen/rating_text_size"
+                        android:textStyle="bold"
+                        android:layout_marginTop="@dimen/date_rating_margin"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textview_movie_plot"
+                android:layout_marginTop="@dimen/details_plot_margin"
+                android:textSize="@dimen/plot_text_size"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
