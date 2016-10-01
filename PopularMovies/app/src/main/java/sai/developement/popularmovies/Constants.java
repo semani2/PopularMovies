@@ -30,4 +30,8 @@ public class Constants {
     public static final String PARCEL_MOVIES_LIST = "movies";
     public static final String PARCEL_MOVIE = "movie";
 
+    /* SORT ORDER FOR DB */
+    public static final String SORT_POPULARITY = "popularity";
+    public static final String SORT_TOP_RATED = "top_rated";
+
 }

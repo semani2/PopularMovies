@@ -17,6 +17,8 @@ public class MoviesContract {
 
     public static final String PATH_MOVIES = "movies";
     public static final String PATH_FAVORITES = "favorites";
+    public static final String PATH_POPULAR = "popular";
+    public static final String PATH_TOP_RATED = "top_rated";
 
     public static final class FavoritesEntry implements BaseColumns {
 
@@ -32,6 +34,42 @@ public class MoviesContract {
         public static final String COLUMN_MOVIES_KEY = "movie_id";
 
         public static Uri buildFavoritesUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
+
+    public static final class PopularEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_POPULAR).build();
+
+        //Content type for getting list of movies
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_POPULAR;
+
+        public static final String TABLE_NAME = "popular";
+
+        public static final String COLUMN_MOVIES_KEY = "movie_id";
+
+        public static Uri buildPopularUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
+
+    public static final class TopRatedEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_TOP_RATED).build();
+
+        //Content type for getting list of movies
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TOP_RATED;
+
+        public static final String TABLE_NAME = "top_rated";
+
+        public static final String COLUMN_MOVIES_KEY = "movie_id";
+
+        public static Uri buildTopRatedUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
@@ -63,7 +101,6 @@ public class MoviesContract {
 
         public static final String COLUMN_RELEASE_DATE = "release_date";
 
-        // To distinguish popular, top rated
         public static final String COLUMN_MOVIE_TYPE = "movie_type";
 
         public static Uri buildMoviesUri(long id) {

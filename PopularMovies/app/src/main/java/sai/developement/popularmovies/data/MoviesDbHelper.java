@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import static android.webkit.WebSettings.PluginState.ON;
+
 /**
  * Created by sai on 10/1/16.
  */
@@ -34,7 +36,8 @@ public class MoviesDbHelper extends SQLiteOpenHelper{
                 MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL, " +
                 MoviesContract.MoviesEntry.COLUMN_MOVIE_TYPE + " TEXT NOT NULL, " +
 
-                "UNIQUE (" + MoviesContract.MoviesEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
+                "UNIQUE (" + MoviesContract.MoviesEntry.COLUMN_MOVIE_ID + ", "+ MoviesContract.MoviesEntry.COLUMN_MOVIE_TYPE +
+                ") ON CONFLICT REPLACE);";
 
         final String SQL_CREATE_FAVORITES_TABLE = "CREATE TABLE " + MoviesContract.FavoritesEntry.TABLE_NAME + " (" +
 

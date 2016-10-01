@@ -1,6 +1,7 @@
 package sai.developement.popularmovies;
 
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,8 +37,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import sai.developement.popularmovies.adapters.MoviesAdapter;
+import sai.developement.popularmovies.data.MoviesContract;
 import sai.developement.popularmovies.models.Movie;
 
 
@@ -204,7 +207,7 @@ public class MoviesFragment extends Fragment {
                     return null;
                 }
 
-                return getMoviesDataFromJSON(stringBuilder.toString());
+                return getMoviesDataFromJSON(stringBuilder.toString(), params[0]);
             }
             catch (IOException e) {
                 Log.e(TAG, "Error ", e);
@@ -228,11 +231,13 @@ public class MoviesFragment extends Fragment {
             }
         }
 
-        private List<Movie> getMoviesDataFromJSON(String moviesJSONString) throws JSONException{
+        private List<Movie> getMoviesDataFromJSON(String moviesJSONString, String sortType) throws JSONException{
             List<Movie> movieList = new ArrayList<>();
 
             JSONObject moviesJSON = new JSONObject(moviesJSONString);
             JSONArray moviesArray = moviesJSON.getJSONArray(Constants.JSON_RESULTS);
+
+            Vector<ContentValues> contentValuesVector = new Vector<ContentValues>(moviesArray.length());
 
             for(int i = 0; i< moviesArray.length(); i++) {
                 JSONObject movieObject = moviesArray.getJSONObject(i);
@@ -244,6 +249,27 @@ public class MoviesFragment extends Fragment {
                 final String posterRelativePath = movieObject.getString(Constants.JSON_POSTER_PATH);
 
                 movieList.add(new Movie(movieId, movieTitle, posterRelativePath, moviePlot, movieRating, movieReleaseDate));
+                ContentValues movieValues = new ContentValues();
+                movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID, movieId);
+                movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_PLOT, moviePlot);
+                movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_RATING, movieRating);
+                movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE, movieTitle);
+                movieValues.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, movieReleaseDate);
+                movieValues.put(MoviesContract.MoviesEntry.COLUMN_POSTER_URL, posterRelativePath);
+                if(sortType.equalsIgnoreCase(Constants.PREFERNCE_POPULARITY)) {
+                    movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_TYPE, Constants.SORT_POPULARITY);
+                }
+                else {
+                    movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_TYPE, Constants.SORT_TOP_RATED);
+                }
+
+                contentValuesVector.add(movieValues);
+            }
+
+            //Add to database
+            if ( contentValuesVector.size() > 0 ) {
+                ContentValues[] valuesArray = new ContentValues[contentValuesVector.size()];
+                getContext().getContentResolver().bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, contentValuesVector.toArray(valuesArray));
             }
 
             return movieList;
