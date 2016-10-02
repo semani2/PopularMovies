@@ -1,5 +1,8 @@
 package sai.developement.popularmovies;
 
+import sai.developement.popularmovies.data.MoviesContract;
+import sai.developement.popularmovies.models.Movie;
+
 /**
  * Created by sai on 9/17/16.
  */
@@ -33,5 +36,25 @@ public class Constants {
     /* SORT ORDER FOR DB */
     public static final String SORT_POPULARITY = "popularity";
     public static final String SORT_TOP_RATED = "top_rated";
+
+    public static final String[] MOVIE_PROJECTION = {
+            MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID,
+            MoviesContract.MoviesEntry.COLUMN_MOVIE_ID,
+            MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE,
+            MoviesContract.MoviesEntry.COLUMN_MOVIE_PLOT,
+            MoviesContract.MoviesEntry.COLUMN_MOVIE_RATING,
+            MoviesContract.MoviesEntry.COLUMN_POSTER_URL,
+            MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE
+    };
+
+    public static final int COL_ID = 0;
+    public static final int COL_MOVIE_ID = 1;
+    public static final int COL_MOVIE_TITLE = 2;
+    public static final int COL_MOVIE_PLOT = 3;
+    public static final int COL_MOVIE_RATING = 4;
+    public static final int COL_POSTER_URL = 5;
+    public static final int COL_RELEASE_DATE = 6;
+
+
 
 }

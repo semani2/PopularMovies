@@ -1,61 +1,50 @@
 package sai.developement.popularmovies.adapters;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
-
 import sai.developement.popularmovies.Constants;
 import sai.developement.popularmovies.R;
-import sai.developement.popularmovies.models.Movie;
 
 /**
  * Created by sai on 9/17/16.
  */
 
-public class MoviesAdapter extends ArrayAdapter<Movie> {
-    private Context mContext;
-    private List<Movie> mMovieList;
-
-    public MoviesAdapter(Context context, List<Movie> objects) {
-        super(context, 0, objects);
-        this.mContext = context;
-        this.mMovieList = objects;
+public class MoviesAdapter extends CursorAdapter {
+    public MoviesAdapter(Context context, Cursor c, int flags) {
+        super(context, c, flags);
     }
 
-    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View v = convertView;
-        MovieViewHolder movieViewHolder;
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        View view = LayoutInflater.from(context).inflate(R.layout.gridview_item, null);
+        MovieViewHolder viewHolder = new MovieViewHolder(view);
+        view.setTag(viewHolder);
+        return view;
+    }
 
-        if(v == null) {
-            v = LayoutInflater.from(mContext).inflate(R.layout.gridview_item, null);
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        MovieViewHolder movieViewHolder = (MovieViewHolder) view.getTag();
 
-            movieViewHolder = new MovieViewHolder();
-            movieViewHolder.posterImageView = (ImageView) v.findViewById(R.id.imageview_movie_poster);
-            v.setTag(movieViewHolder);
-        }
-        else {
-            movieViewHolder = (MovieViewHolder) v.getTag();
-        }
-
-        String posterURL = Constants.THUMBNAIL_BASE_URL.concat(mMovieList.get(position).getPosterRelativeUrl());
-        Picasso.with(mContext)
+        String posterURL = Constants.THUMBNAIL_BASE_URL.concat(cursor.getString(Constants.COL_POSTER_URL));
+        Picasso.with(context)
                 .load(posterURL)
                 .into(movieViewHolder.posterImageView);
-
-        return v;
     }
 
     private static class MovieViewHolder {
         ImageView posterImageView;
+
+        public MovieViewHolder(View view) {
+            posterImageView = (ImageView) view.findViewById(R.id.imageview_movie_poster);
+        }
     }
 }

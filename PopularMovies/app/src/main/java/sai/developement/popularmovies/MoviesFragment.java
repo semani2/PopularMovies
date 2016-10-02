@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -13,6 +14,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,8 +51,9 @@ import sai.developement.popularmovies.models.Movie;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MoviesFragment extends Fragment {
+public class MoviesFragment extends Fragment implements LoaderManager.LoaderCallbacks{
 
+    private static final int MOVIES_LOADER_ID = 1;
     private GridView mMoviesGridView;
     private MoviesAdapter mMoviesAdapter;
     private ProgressBar mProgressBar;
@@ -56,6 +61,12 @@ public class MoviesFragment extends Fragment {
 
     public MoviesFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        getLoaderManager().initLoader(MOVIES_LOADER_ID, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
 
     public static MoviesFragment newInstance() {
@@ -78,15 +89,14 @@ public class MoviesFragment extends Fragment {
         mMoviesGridView = (GridView) v.findViewById(R.id.gridview_movies);
         mProgressBar = (ProgressBar) v.findViewById(R.id.progressbar_loading);
 
-        mMoviesAdapter = new MoviesAdapter(getContext(), mMoviesList);
+        mMoviesAdapter = new MoviesAdapter(getContext(), null, 0);
         mMoviesGridView.setAdapter(mMoviesAdapter);
 
         mMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent detailsIntent = new Intent(getActivity(), DetailsActivity.class);
-                detailsIntent.putExtra(Constants.PARCEL_MOVIE, mMoviesAdapter.getItem(position));
-                startActivity(detailsIntent);
+
+                //TODO :: USe cursor data to launch detail activity
             }
         });
 
@@ -121,6 +131,7 @@ public class MoviesFragment extends Fragment {
     }
 
     public void updateMovies() {
+        getLoaderManager().restartLoader(MOVIES_LOADER_ID, null, this);
         if(mMoviesList.size() == 0) {
             if(isNetworkAvailable()) {
                 mProgressBar.setVisibility(View.VISIBLE);
@@ -128,9 +139,6 @@ public class MoviesFragment extends Fragment {
                         .execute(PreferenceManager.getDefaultSharedPreferences(getActivity())
                                 .getString(getString(R.string.str_setting_sort_key),
                                         getString(R.string.setting_sort_def_value)));
-            }
-            else {
-                showNoNetworkDialog();
             }
         }
     }
@@ -159,6 +167,37 @@ public class MoviesFragment extends Fragment {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        String preference = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.str_setting_sort_key),
+                        getString(R.string.setting_sort_def_value));
+        String sortType = preference.equalsIgnoreCase(Constants.PREFERNCE_POPULARITY) ? Constants.SORT_POPULARITY : Constants.SORT_TOP_RATED;
+
+        Uri moviesSortTypeUri = MoviesContract.MoviesEntry.buildMoviesSort(sortType);
+
+        return new CursorLoader(getContext(),
+                moviesSortTypeUri,
+                Constants.MOVIE_PROJECTION,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object data) {
+        if(data == null) {
+            showNoNetworkDialog();
+            return;
+        }
+        mMoviesAdapter.swapCursor((Cursor) data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        mMoviesAdapter.swapCursor(null);
     }
 
     class MoviesFetchTask extends AsyncTask<String, Void, List<Movie>> {
