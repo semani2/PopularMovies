@@ -1,7 +1,6 @@
 package sai.developement.popularmovies;
 
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,7 +8,6 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -18,7 +16,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,21 +24,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ProgressBar;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
 
 import sai.developement.popularmovies.adapters.MoviesAdapter;
 import sai.developement.popularmovies.data.MoviesContract;
@@ -56,7 +40,6 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int MOVIES_LOADER_ID = 1;
     private GridView mMoviesGridView;
     private MoviesAdapter mMoviesAdapter;
-    private ProgressBar mProgressBar;
     private ArrayList<Movie> mMoviesList = new ArrayList<>();
 
     public MoviesFragment() {
@@ -87,7 +70,6 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
                              Bundle savedInstanceState) {
         View v =  inflater.inflate(R.layout.fragment_movies, container, false);
         mMoviesGridView = (GridView) v.findViewById(R.id.gridview_movies);
-        mProgressBar = (ProgressBar) v.findViewById(R.id.progressbar_loading);
 
         mMoviesAdapter = new MoviesAdapter(getContext(), null, 0);
         mMoviesGridView.setAdapter(mMoviesAdapter);
@@ -95,8 +77,12 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         mMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                //TODO :: USe cursor data to launch detail activity
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                if(cursor != null) {
+                    Intent intent = new Intent(getActivity(), DetailsActivity.class);
+                    intent.setData(MoviesContract.MoviesEntry.buildGetMovie(cursor.getString(Constants.COL_MOVIE_ID)));
+                    startActivity(intent);
+                }
             }
         });
 
@@ -134,8 +120,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         getLoaderManager().restartLoader(MOVIES_LOADER_ID, null, this);
         if(mMoviesList.size() == 0) {
             if(isNetworkAvailable()) {
-                mProgressBar.setVisibility(View.VISIBLE);
-                new MoviesFetchTask()
+                new MoviesFetchTask(getContext())
                         .execute(PreferenceManager.getDefaultSharedPreferences(getActivity())
                                 .getString(getString(R.string.str_setting_sort_key),
                                         getString(R.string.setting_sort_def_value)));
@@ -198,128 +183,5 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoaderReset(Loader loader) {
         mMoviesAdapter.swapCursor(null);
-    }
-
-    class MoviesFetchTask extends AsyncTask<String, Void, List<Movie>> {
-        private final String TAG = MoviesFetchTask.class.getSimpleName();
-        HttpURLConnection mUrlConnection = null;
-        BufferedReader mBufferedReader = null;
-
-        @Override
-        protected List<Movie> doInBackground(String... params) {
-            try {
-                String baseURL;
-                if(params == null) {
-                    baseURL = Constants.POPULAR_MOVIES_URL;
-                }
-                else {
-                    String sortOrder = params[0];
-                    if (sortOrder.equalsIgnoreCase(Constants.PREFERNCE_POPULARITY)) {
-                        baseURL = Constants.POPULAR_MOVIES_URL;
-                    } else {
-                        baseURL = Constants.TOP_RATED_MOVIES_URL;
-                    }
-                }
-
-                Uri uri = Uri.parse(baseURL).buildUpon()
-                        .appendQueryParameter(Constants.API_KEY_QUERY_PARAM, APIKeys.MOVIES_DB_KEY)
-                        .build();
-
-                URL url = new URL(uri.toString());
-                mUrlConnection = (HttpURLConnection) url.openConnection();
-                mUrlConnection.setRequestMethod(Constants.GET_REQUEST);
-                mUrlConnection.connect();
-
-                InputStream inputStream = mUrlConnection.getInputStream();
-                StringBuilder stringBuilder = new StringBuilder();
-                if (inputStream == null) {
-                    return null;
-                }
-                mBufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = mBufferedReader.readLine()) != null) {
-                    stringBuilder.append(line + "\n");
-                }
-
-                if (stringBuilder.length() == 0) {
-                    return null;
-                }
-
-                return getMoviesDataFromJSON(stringBuilder.toString(), params[0]);
-            }
-            catch (IOException e) {
-                Log.e(TAG, "Error ", e);
-                return null;
-            }
-            catch (JSONException e) {
-                Log.e(TAG, "Error ", e);
-                return null;
-            }
-            finally{
-                if (mUrlConnection != null) {
-                    mUrlConnection.disconnect();
-                }
-                if (mBufferedReader != null) {
-                    try {
-                        mBufferedReader.close();
-                    } catch (final IOException e) {
-                        Log.e(TAG, "Error closing stream", e);
-                    }
-                }
-            }
-        }
-
-        private List<Movie> getMoviesDataFromJSON(String moviesJSONString, String sortType) throws JSONException{
-            List<Movie> movieList = new ArrayList<>();
-
-            JSONObject moviesJSON = new JSONObject(moviesJSONString);
-            JSONArray moviesArray = moviesJSON.getJSONArray(Constants.JSON_RESULTS);
-
-            Vector<ContentValues> contentValuesVector = new Vector<ContentValues>(moviesArray.length());
-
-            for(int i = 0; i< moviesArray.length(); i++) {
-                JSONObject movieObject = moviesArray.getJSONObject(i);
-                String movieId = movieObject.getString(Constants.JSON_MOVIE_ID);
-                final String movieTitle = movieObject.getString(Constants.JSON_TITLE);
-                final String moviePlot = movieObject.getString(Constants.JSON_OVERVIEW);
-                final double movieRating = movieObject.getDouble(Constants.JSON_RATING);
-                final String movieReleaseDate = movieObject.getString(Constants.JSON_RELEASE_DATE);
-                final String posterRelativePath = movieObject.getString(Constants.JSON_POSTER_PATH);
-
-                movieList.add(new Movie(movieId, movieTitle, posterRelativePath, moviePlot, movieRating, movieReleaseDate));
-                ContentValues movieValues = new ContentValues();
-                movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID, movieId);
-                movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_PLOT, moviePlot);
-                movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_RATING, movieRating);
-                movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE, movieTitle);
-                movieValues.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, movieReleaseDate);
-                movieValues.put(MoviesContract.MoviesEntry.COLUMN_POSTER_URL, posterRelativePath);
-                if(sortType.equalsIgnoreCase(Constants.PREFERNCE_POPULARITY)) {
-                    movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_TYPE, Constants.SORT_POPULARITY);
-                }
-                else {
-                    movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_TYPE, Constants.SORT_TOP_RATED);
-                }
-
-                contentValuesVector.add(movieValues);
-            }
-
-            //Add to database
-            if ( contentValuesVector.size() > 0 ) {
-                ContentValues[] valuesArray = new ContentValues[contentValuesVector.size()];
-                getContext().getContentResolver().bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, contentValuesVector.toArray(valuesArray));
-            }
-
-            return movieList;
-        }
-
-        @Override
-        protected void onPostExecute(List<Movie> movies) {
-            mProgressBar.setVisibility(View.GONE);
-            mMoviesList.clear();
-            mMoviesList.addAll(movies);
-            mMoviesAdapter.notifyDataSetChanged();
-        }
     }
 }

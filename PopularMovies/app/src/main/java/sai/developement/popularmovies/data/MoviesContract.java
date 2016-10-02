@@ -119,7 +119,7 @@ public class MoviesContract {
         }
 
         public static Uri buildGetMovie(String movieId) {
-            return CONTENT_URI.buildUpon().appendPath("movieId")
+            return CONTENT_URI.buildUpon().appendPath("id")
                     .appendPath(movieId)
                     .build();
         }
