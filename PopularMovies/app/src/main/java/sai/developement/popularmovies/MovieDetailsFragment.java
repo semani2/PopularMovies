@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import sai.developement.popularmovies.async_tasks.ReviewsFetchTask;
 import sai.developement.popularmovies.async_tasks.TrailersFetchTask;
 import sai.developement.popularmovies.data.MoviesContract;
 
@@ -39,10 +40,15 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
     private static final int MOVIE_DETAIL_LOADER = 0;
     private static final int MOVIE_TRAILER_LOADER = 1;
     private static final int MOVIE_FAVORITE_LOADER = 2;
+    private static final int MOVIE_REVIEWS_LOADER = 3;
 
     private ProgressBar mTrailersProgressBar;
 
+    private ProgressBar mReviewsProgressBar;
+
     private LinearLayout mTrailersListLayout;
+
+    private LinearLayout mReviewsListLayout;
 
     private Button mToggleFavButton;
 
@@ -59,6 +65,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
         getLoaderManager().initLoader(MOVIE_TRAILER_LOADER, null, this);
         getLoaderManager().initLoader(MOVIE_FAVORITE_LOADER, null, this);
+        getLoaderManager().initLoader(MOVIE_REVIEWS_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -69,6 +76,8 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
 
         mTrailersProgressBar = (ProgressBar) v.findViewById(R.id.trailersProgressBar);
         mTrailersListLayout = (LinearLayout) v.findViewById(R.id.trailersListLayout);
+        mReviewsListLayout = (LinearLayout) v.findViewById(R.id.reviewsListLayout);
+        mReviewsProgressBar = (ProgressBar) v.findViewById(R.id.reviewsProgressBar);
 
         return v;
     }
@@ -118,7 +127,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             final String trailerName = data.getString(Constants.COL_TRAILER_NAME);
             final String youtubeKey = data.getString(Constants.COL_TRAILER_KEY);
 
-            View view = LayoutInflater.from(getContext()).inflate(R.layout.trailers_list_item, null);
+            View view = LayoutInflater.from(getContext()).inflate(R.layout.trailers_view, null);
             TextView trailersTextView = (TextView)view.findViewById(R.id.trailerTextView);
             trailersTextView.setText(trailerName);
 
@@ -134,6 +143,70 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
 
         if(mTrailersProgressBar != null) {
             mTrailersProgressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private void initReviewsView(final Cursor data) {
+        if(mReviewsListLayout.getChildCount() > 0) {
+            mReviewsListLayout.removeAllViews();
+        }
+
+        while(data.moveToNext()) {
+            final String reviewAuthor = data.getString(Constants.COL_REVIEW_AUTHOR);
+            final String reviewContent = data.getString(Constants.COL_REVIEW_CONTENT);
+
+            LinearLayout view = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.reviews_view, null);
+            TextView authorTextView = (TextView) view.findViewById(R.id.authorTextView);
+            final TextView contentTextView = (TextView) view.findViewById(R.id.reviewTextView);
+            final TextView showMoreTextView = (TextView) view.findViewById(R.id.showMoreTextView);
+
+            authorTextView.setText(reviewAuthor);
+            contentTextView.setText(reviewContent);
+
+            ShowMoreClickListener clickListener = new ShowMoreClickListener(contentTextView, showMoreTextView);
+            showMoreTextView.setOnClickListener(clickListener);
+
+            mReviewsListLayout.addView(view);
+        }
+
+        if(mReviewsProgressBar != null) {
+            mReviewsProgressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private class ShowMoreClickListener implements View.OnClickListener {
+
+        private boolean mShouldExpand;
+
+        private final TextView showMoreTextView;
+        private final  TextView contentTextView;
+
+        public ShowMoreClickListener(TextView contentTextView, TextView showMoreTextView) {
+            mShouldExpand = true;
+            this.contentTextView = contentTextView;
+            this.showMoreTextView = showMoreTextView;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if(!mShouldExpand) {
+                // Compress the textview and set the text to show less
+                ViewGroup.LayoutParams layoutParams = contentTextView.getLayoutParams();
+                layoutParams.height = getResources().getDimensionPixelSize(R.dimen.review_textview_def_height);
+
+                contentTextView.setLayoutParams(layoutParams);
+                showMoreTextView.setText(getString(R.string.strShowMore));
+                mShouldExpand = true;
+            }
+            else {
+                // the opposite
+                ViewGroup.LayoutParams layoutParams = contentTextView.getLayoutParams();
+                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+                contentTextView.setLayoutParams(layoutParams);
+                showMoreTextView.setText(getString(R.string.strShowLess));
+                mShouldExpand = false;
+            }
         }
     }
 
@@ -184,7 +257,22 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
     public void onStart() {
         super.onStart();
         fetchTrailers();
+        fetchReviews();
         fetchIsFavorite();
+    }
+
+    private void fetchReviews() {
+        getLoaderManager().restartLoader(MOVIE_REVIEWS_LOADER, null, this);
+        String movieId = MoviesContract.ReviewsEntry.getMovieIdFromMoviesUri(getActivity().getIntent().getData());
+        if(movieId == null) {
+            return;
+        }
+
+        if(isNetworkAvailable()) {
+            mReviewsProgressBar.setVisibility(View.VISIBLE);
+            new ReviewsFetchTask(getContext())
+                    .execute(movieId);
+        }
     }
 
     private void fetchIsFavorite() {
@@ -203,7 +291,6 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             new TrailersFetchTask(getContext())
                     .execute(movieId);
         }
-
     }
 
     @Override
@@ -241,6 +328,16 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
                         null,
                         null);
             }
+
+            case MOVIE_REVIEWS_LOADER: {
+                String movieId = MoviesContract.ReviewsEntry.getMovieIdFromMoviesUri(getActivity().getIntent().getData());
+                return new CursorLoader(getActivity(),
+                        MoviesContract.ReviewsEntry.buildGetReviewsUri(movieId),
+                        Constants.REVIEW_PROJECTION,
+                        null,
+                        null,
+                        null);
+            }
         }
         return null;
     }
@@ -259,6 +356,9 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             case MOVIE_FAVORITE_LOADER:
                 initFavToggleButton(data, getView());
                 return;
+
+            case MOVIE_REVIEWS_LOADER:
+                initReviewsView(data);
         }
     }
 

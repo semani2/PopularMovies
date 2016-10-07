@@ -41,6 +41,9 @@ public class MoviesProvider extends ContentProvider {
     private static final String sMovieTrailerByIdSelection =
             MoviesContract.TrailersEntry.TABLE_NAME + "." + MoviesContract.TrailersEntry.COLUMN_MOVIES_KEY + " = ?";
 
+    private static final String sMovieReviewByIdSelection =
+            MoviesContract.ReviewsEntry.TABLE_NAME + "." + MoviesContract.ReviewsEntry.COLUMN_MOVIES_KEY + " = ?";
+
     private static final String sFavoriteByIdSelection =
             MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry.COLUMN_MOVIE_ID + " = ?";
 
@@ -54,6 +57,9 @@ public class MoviesProvider extends ContentProvider {
 
     static final int TRAILER = 300;
     static final int TRAILERS_FOR_MOVIE = 301;
+
+    static final int REVIEW = 400;
+    static final int REVIEWS_FOR_MOVIE = 401;
 
     private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -69,6 +75,9 @@ public class MoviesProvider extends ContentProvider {
 
         matcher.addURI(authority, MoviesContract.PATH_TRAILERS, TRAILER);
         matcher.addURI(authority, MoviesContract.PATH_TRAILERS + "/*", TRAILERS_FOR_MOVIE);
+
+        matcher.addURI(authority, MoviesContract.PATH_REVIEWS, REVIEW);
+        matcher.addURI(authority, MoviesContract.PATH_REVIEWS + "/*", REVIEWS_FOR_MOVIE);
         return matcher;
     }
 
@@ -135,11 +144,37 @@ public class MoviesProvider extends ContentProvider {
                 retCursor = getTrailersForMovie(uri, projection, sortOrder);
                 break;
 
+            case REVIEW:
+                retCursor = mOpenHelper.getReadableDatabase().query(MoviesContract.ReviewsEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+
+            case REVIEWS_FOR_MOVIE:
+                retCursor = getReviewsForMovie(uri, projection, sortOrder);
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
+    }
+
+    private Cursor getReviewsForMovie(Uri uri, String[] projection, String sortOrder) {
+        String movieId = MoviesContract.ReviewsEntry.getMovieIdFromUri(uri);
+
+        return mOpenHelper.getReadableDatabase().query(MoviesContract.ReviewsEntry.TABLE_NAME,
+                projection,
+                sMovieReviewByIdSelection,
+                new String[]{movieId},
+                null,
+                null,
+                sortOrder);
     }
 
     private Cursor getMovieIsFavorite(Uri uri, String[] projection, String sortOrder) {
@@ -262,6 +297,15 @@ public class MoviesProvider extends ContentProvider {
                 break;
             }
 
+            case REVIEW: {
+                long _id = db.insert(MoviesContract.ReviewsEntry.TABLE_NAME, null, values);
+                if (_id > 0)
+                    returnUri = MoviesContract.ReviewsEntry.buildReviewsUri(_id);
+                else
+                    throw new SQLException("Failed to insert row into " + uri);
+                break;
+            }
+
             default:
                 throw new UnsupportedOperationException("Unknown URI : "+ uri);
         }
@@ -287,6 +331,10 @@ public class MoviesProvider extends ContentProvider {
 
             case TRAILER:
                 deletedRows = db.delete(MoviesContract.TrailersEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+
+            case REVIEW:
+                deletedRows = db.delete(MoviesContract.ReviewsEntry.TABLE_NAME, selection, selectionArgs);
                 break;
 
             default:
@@ -316,6 +364,10 @@ public class MoviesProvider extends ContentProvider {
 
             case TRAILER:
                 updatedRows = db.update(MoviesContract.TrailersEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+
+            case REVIEW:
+                updatedRows = db.update(MoviesContract.ReviewsEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
 
             default:
@@ -357,6 +409,24 @@ public class MoviesProvider extends ContentProvider {
                 try {
                     for (ContentValues value : values) {
                         long _id = db.insert(MoviesContract.TrailersEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            }
+
+            case REVIEW: {
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MoviesContract.ReviewsEntry.TABLE_NAME, null, value);
                         if (_id != -1) {
                             returnCount++;
                         }

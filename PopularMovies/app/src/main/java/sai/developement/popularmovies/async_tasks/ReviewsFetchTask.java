@@ -23,17 +23,17 @@ import sai.developement.popularmovies.Constants;
 import sai.developement.popularmovies.data.MoviesContract;
 
 /**
- * Created by sai on 10/5/16.
+ * Created by sai on 10/7/16.
  */
 
-public class TrailersFetchTask extends AsyncTask<String, Void, Void> {
-    private final String TAG = TrailersFetchTask.class.getSimpleName();
+public class ReviewsFetchTask extends AsyncTask<String, Void, Void> {
+    private final String TAG = ReviewsFetchTask.class.getSimpleName();
     HttpURLConnection mUrlConnection = null;
     BufferedReader mBufferedReader = null;
 
     private final Context mContext;
 
-    public TrailersFetchTask(Context context) {
+    public ReviewsFetchTask(Context context) {
         this.mContext = context;
     }
 
@@ -47,7 +47,7 @@ public class TrailersFetchTask extends AsyncTask<String, Void, Void> {
             String movieId = params[0];
             Uri uri = Uri.parse(Constants.API_BASE_URL).buildUpon()
                     .appendPath(movieId)
-                    .appendPath(Constants.VIDEOS)
+                    .appendPath(Constants.REVIEWS)
                     .appendQueryParameter(Constants.API_KEY_QUERY_PARAM, APIKeys.MOVIES_DB_KEY)
                     .build();
 
@@ -72,7 +72,7 @@ public class TrailersFetchTask extends AsyncTask<String, Void, Void> {
                 return null;
             }
 
-            getTrailersDataFromJSON(stringBuilder.toString(), movieId);
+            getReviewsDataFromJSON(stringBuilder.toString(), movieId);
             return null;
         }
         catch (IOException e) {
@@ -97,28 +97,30 @@ public class TrailersFetchTask extends AsyncTask<String, Void, Void> {
         }
     }
 
-    private void getTrailersDataFromJSON(String jsonString, String movieId) throws JSONException{
-        JSONObject trailersJson = new JSONObject(jsonString);
-        JSONArray trailersArray = trailersJson.getJSONArray(Constants.JSON_RESULTS);
+    private void getReviewsDataFromJSON(String jsonString, String movieId) throws JSONException{
+        JSONObject reviewsJSON = new JSONObject(jsonString);
+        JSONArray reviewsArray = reviewsJSON.getJSONArray(Constants.JSON_RESULTS);
 
-        Vector<ContentValues> contentValuesVector = new Vector<ContentValues>(trailersArray.length());
+        Vector<ContentValues> contentValuesVector = new Vector<ContentValues>(reviewsArray.length());
 
-        for (int i = 0; i < trailersArray.length(); i++) {
-            JSONObject movieObject = trailersArray.getJSONObject(i);
-            final String trailerKey = movieObject.getString(Constants.JSON_TRAILER_KEY);
-            final String trailerName = movieObject.getString(Constants.JSON_TRAILER_NAME);
+        for (int i = 0; i < reviewsArray.length(); i++) {
+            JSONObject reviewObject = reviewsArray.getJSONObject(i);
+            final String reviewId = reviewObject.getString(Constants.JSON_REVIEW_ID);
+            final String reviewAuthor = reviewObject.getString(Constants.JSON_REVIEW_AUTHOR);
+            final String reviewContent = reviewObject.getString(Constants.JSON_REVIEW_CONTENT);
 
-            ContentValues movieValues = new ContentValues();
-            movieValues.put(MoviesContract.TrailersEntry.COLUMN_MOVIES_KEY, movieId);
-            movieValues.put(MoviesContract.TrailersEntry.COLUMN_KEY, trailerKey);
-            movieValues.put(MoviesContract.TrailersEntry.COLUMN_NAME, trailerName);
+            ContentValues reviewValues = new ContentValues();
+            reviewValues.put(MoviesContract.ReviewsEntry.COLUMN_MOVIES_KEY, movieId);
+            reviewValues.put(MoviesContract.ReviewsEntry.COLUMN_REVIEW_ID, reviewId);
+            reviewValues.put(MoviesContract.ReviewsEntry.COLUMN_REVIEW_AUTHOR, reviewAuthor);
+            reviewValues.put(MoviesContract.ReviewsEntry.COLUMN_REVIEW_CONTENT, reviewContent);
 
-            contentValuesVector.add(movieValues);
+            contentValuesVector.add(reviewValues);
         }
 
         if (contentValuesVector.size() > 0) {
             ContentValues[] valuesArray = new ContentValues[contentValuesVector.size()];
-            mContext.getContentResolver().bulkInsert(MoviesContract.TrailersEntry.CONTENT_URI, contentValuesVector.toArray(valuesArray));
+            mContext.getContentResolver().bulkInsert(MoviesContract.ReviewsEntry.CONTENT_URI, contentValuesVector.toArray(valuesArray));
         }
     }
 }

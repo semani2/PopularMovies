@@ -16,4 +16,6 @@
     <dimen name="date_rating_margin">15dp</dimen>
     <dimen name="rating_text_size">18sp</dimen>
     <dimen name="plot_text_size">18sp</dimen>
+
+    <dimen name="review_textview_def_height">100dp</dimen>
 </resources>

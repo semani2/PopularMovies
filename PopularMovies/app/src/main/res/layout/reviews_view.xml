@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+    android:layout_marginBottom="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="@color/colorMovieDetailBckground"
+            android:text="@string/strAuthor"/>
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/authorTextView"
+            android:layout_marginTop="3dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="@color/colorMovieDetailBckground"
+            android:text="@string/strReview"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/review_textview_def_height"
+            android:id="@+id/reviewTextView"
+            android:layout_marginTop="3dp"
+            android:ellipsize="end"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/showMoreTextView"
+        android:text="@string/strShowMore"
+        android:textColor="@color/colorMovieDetailBckground"
+        android:textSize="18sp"
+        android:layout_marginTop="3dp"
+        android:layout_gravity="end"
+        android:layout_marginEnd="10dp"/>
+
+</LinearLayout>

@@ -60,13 +60,32 @@ public class MoviesDbHelper extends SQLiteOpenHelper{
 
                 "UNIQUE (" + MoviesContract.TrailersEntry.COLUMN_KEY + ") ON CONFLICT REPLACE);";
 
+        final String SQL_CREATE_REVIEWS_TABLE = "CREATE TABLE " + MoviesContract.ReviewsEntry.TABLE_NAME + " (" +
+
+                MoviesContract.ReviewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+
+                MoviesContract.ReviewsEntry.COLUMN_REVIEW_ID + " TEXT NOT NULL, " +
+
+                MoviesContract.ReviewsEntry.COLUMN_REVIEW_AUTHOR + " TEXT, " +
+
+                MoviesContract.ReviewsEntry.COLUMN_REVIEW_CONTENT + " TEXT NOT NULL, " +
+
+                MoviesContract.ReviewsEntry.COLUMN_MOVIES_KEY + " TEXT NOT NULL, " +
+
+                "FOREIGN KEY (" + MoviesContract.ReviewsEntry.COLUMN_MOVIES_KEY + ") REFERENCES " +
+                MoviesContract.MoviesEntry.TABLE_NAME + "( " + MoviesContract.MoviesEntry.COLUMN_MOVIE_ID + "), " +
+
+                "UNIQUE (" + MoviesContract.ReviewsEntry.COLUMN_REVIEW_ID + ") ON CONFLICT REPLACE);";
+
         db.execSQL(SQL_CREATE_MOVIES_TABLE);
         db.execSQL(SQL_CREATE_FAVORITES_TABLE);
         db.execSQL(SQL_CREATE_TRAILERS_TABLE);
+        db.execSQL(SQL_CREATE_REVIEWS_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + MoviesContract.ReviewsEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + MoviesContract.TrailersEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + MoviesContract.FavoritesEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + MoviesContract.MoviesEntry.TABLE_NAME);

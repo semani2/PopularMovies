@@ -18,6 +18,7 @@ public class MoviesContract {
     public static final String PATH_MOVIES = "movies";
     public static final String PATH_FAVORITES = "favorites";
     public static final String PATH_TRAILERS = "trailers";
+    public static final String PATH_REVIEWS = "reviews";
 
     public static final class FavoritesEntry implements BaseColumns {
 
@@ -68,6 +69,43 @@ public class MoviesContract {
         }
 
         public static Uri buildGetTrailersUri(String movieId) {
+            return CONTENT_URI.buildUpon()
+                    .appendPath(movieId)
+                    .build();
+        }
+
+        public static String getMovieIdFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
+
+        public static String getMovieIdFromMoviesUri(Uri uri) {
+            return uri.getPathSegments().get(2);
+        }
+    }
+
+    public static final class ReviewsEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEWS).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEWS;
+
+        public static final String TABLE_NAME = "reviews";
+
+        public static final String COLUMN_MOVIES_KEY = "movie_id";
+
+        public static final String COLUMN_REVIEW_AUTHOR = "review_author";
+
+        public static final String COLUMN_REVIEW_ID = "review_id";
+
+        public static final String COLUMN_REVIEW_CONTENT = "review_content";
+
+        public static Uri buildReviewsUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        public static Uri buildGetReviewsUri(String movieId) {
             return CONTENT_URI.buildUpon()
                     .appendPath(movieId)
                     .build();

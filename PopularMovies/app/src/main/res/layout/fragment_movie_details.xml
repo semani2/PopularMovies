@@ -108,6 +108,44 @@
 
             </RelativeLayout>
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/reviewsLayout"
+                android:layout_marginTop="10dp">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#888888"
+                    android:id="@+id/reviewsSeparatorView"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reviews :"
+                    android:layout_marginTop="10dp"
+                    android:textSize="20sp"
+                    android:layout_below="@+id/reviewsSeparatorView"
+                    android:id="@+id/reviewsTextView"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:id="@+id/reviewsListLayout"
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@id/reviewsTextView"/>
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/reviewsProgressBar"
+                    android:layout_centerInParent="true"
+                    android:visibility="gone"/>
+
+            </RelativeLayout>
+
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

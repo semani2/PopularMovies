@@ -30,4 +30,9 @@
 
     <string name="strMarkAsFav">Add to favorites</string>
     <string name="strRemoveFromFav">Remove from favorites</string>
+
+    <string name="strAuthor">Author</string>
+    <string name="strReview">Review</string>
+    <string name="strShowMore">Show more&#8230;</string>
+    <string name="strShowLess">Show less&#8230;</string>
 </resources>

@@ -18,6 +18,7 @@ public class Constants {
     public static final String GET_REQUEST = "GET";
     public static final int MAX_RATING = 10;
     public static final String VIDEOS = "videos";
+    public static final String REVIEWS = "reviews";
 
     /* Constants for JSON parsing */
     public static final String JSON_RESULTS = "results";
@@ -29,6 +30,9 @@ public class Constants {
     public static final String JSON_RATING = "vote_average";
     public static final String JSON_TRAILER_KEY = "key";
     public static final String JSON_TRAILER_NAME = "name";
+    public static final String JSON_REVIEW_ID = "id";
+    public static final String JSON_REVIEW_AUTHOR = "author";
+    public static final String JSON_REVIEW_CONTENT = "content";
 
     /* Constants for Intents */
     public static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
@@ -78,4 +82,12 @@ public class Constants {
 
     public static final String favoriteDeleteSelectionArgs =
             MoviesContract.FavoritesEntry.TABLE_NAME + "." + MoviesContract.FavoritesEntry.COLUMN_MOVIES_KEY + " = ?";
+
+    public static final String[] REVIEW_PROJECTION = {
+            MoviesContract.ReviewsEntry.TABLE_NAME + "." + MoviesContract.ReviewsEntry.COLUMN_REVIEW_AUTHOR,
+            MoviesContract.ReviewsEntry.TABLE_NAME + "." + MoviesContract.ReviewsEntry.COLUMN_REVIEW_CONTENT
+    };
+
+    public static final int COL_REVIEW_AUTHOR = 0;
+    public static final int COL_REVIEW_CONTENT = 1;
 }
