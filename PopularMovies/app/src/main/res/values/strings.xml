@@ -12,14 +12,17 @@
     <string-array name="setting_sort_entries">
         <item>Most popular</item>
         <item>Top rated</item>
+        <item>Favorites</item>
     </string-array>
 
     <string-array name="setting_sort_entry_values">
         <item>popularity</item>
-        <item>rating</item>
+        <item>top_rated</item>
+        <item>favorites</item>
     </string-array>
 
-    <string name="setting_sort_def_value">popularity</string>
+    <string name="setting_sort_def_value" translatable="false">popularity</string>
+    <string name="setting_sort_favorites_value" translatable="false">favorites</string>
 
     <string name="string_no_network_title">Error loading movies</string>
     <string name="str_no_network">You are not connected to the internet. Please try when you are connected to a network.</string>

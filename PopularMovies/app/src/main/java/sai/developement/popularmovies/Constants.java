@@ -33,9 +33,6 @@ public class Constants {
     /* Constants for Intents */
     public static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
 
-    /* Preferences */
-    public static final String PREFERNCE_POPULARITY = "popularity";
-
     /* Parcelable Constants */
     public static final String PARCEL_MOVIES_LIST = "movies";
     public static final String PARCEL_MOVIE = "movie";
@@ -43,10 +40,11 @@ public class Constants {
     /* SORT ORDER FOR DB */
     public static final String SORT_POPULARITY = "popularity";
     public static final String SORT_TOP_RATED = "top_rated";
+    public static final String SORT_FAVORITES = "favorites";
 
     public static final String[] MOVIE_PROJECTION = {
             MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID,
-            MoviesContract.MoviesEntry.COLUMN_MOVIE_ID,
+            MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry.COLUMN_MOVIE_ID,
             MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE,
             MoviesContract.MoviesEntry.COLUMN_MOVIE_PLOT,
             MoviesContract.MoviesEntry.COLUMN_MOVIE_RATING,

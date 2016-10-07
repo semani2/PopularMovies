@@ -46,7 +46,7 @@ public class MoviesFetchTask extends AsyncTask<String, Void, Void> {
             }
             else {
                 String sortOrder = params[0];
-                if (sortOrder.equalsIgnoreCase(Constants.PREFERNCE_POPULARITY)) {
+                if (sortOrder.equalsIgnoreCase(Constants.SORT_POPULARITY)) {
                     baseURL = Constants.POPULAR_MOVIES_URL;
                 } else {
                     baseURL = Constants.TOP_RATED_MOVIES_URL;
@@ -125,7 +125,7 @@ public class MoviesFetchTask extends AsyncTask<String, Void, Void> {
             movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_TITLE, movieTitle);
             movieValues.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, movieReleaseDate);
             movieValues.put(MoviesContract.MoviesEntry.COLUMN_POSTER_URL, posterRelativePath);
-            if (sortType.equalsIgnoreCase(Constants.PREFERNCE_POPULARITY)) {
+            if (sortType.equalsIgnoreCase(Constants.SORT_POPULARITY)) {
                 movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_TYPE, Constants.SORT_POPULARITY);
             } else {
                 movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_TYPE, Constants.SORT_TOP_RATED);

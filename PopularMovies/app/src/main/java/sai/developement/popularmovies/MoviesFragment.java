@@ -119,12 +119,14 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     public void updateMovies() {
         getLoaderManager().restartLoader(MOVIES_LOADER_ID, null, this);
-        if(mMoviesList.size() == 0) {
+        String sortPref = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.str_setting_sort_key),
+                        getString(R.string.setting_sort_def_value));
+
+        if(mMoviesList.size() == 0 || !sortPref.equalsIgnoreCase(getString(R.string.setting_sort_favorites_value))) {
             if(isNetworkAvailable()) {
                 new MoviesFetchTask(getContext())
-                        .execute(PreferenceManager.getDefaultSharedPreferences(getActivity())
-                                .getString(getString(R.string.str_setting_sort_key),
-                                        getString(R.string.setting_sort_def_value)));
+                        .execute(sortPref);
             }
         }
     }
@@ -160,9 +162,14 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         String preference = PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getString(getString(R.string.str_setting_sort_key),
                         getString(R.string.setting_sort_def_value));
-        String sortType = preference.equalsIgnoreCase(Constants.PREFERNCE_POPULARITY) ? Constants.SORT_POPULARITY : Constants.SORT_TOP_RATED;
 
-        Uri moviesSortTypeUri = MoviesContract.MoviesEntry.buildMoviesSort(sortType);
+        Uri moviesSortTypeUri;
+        if(preference.equalsIgnoreCase(Constants.SORT_FAVORITES)) {
+            moviesSortTypeUri = MoviesContract.MoviesEntry.buildMoviesFavorites();
+        }
+        else {
+            moviesSortTypeUri = MoviesContract.MoviesEntry.buildMoviesSort(preference);
+        }
 
         return new CursorLoader(getContext(),
                 moviesSortTypeUri,
