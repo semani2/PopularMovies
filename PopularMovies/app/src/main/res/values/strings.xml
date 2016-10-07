@@ -25,4 +25,6 @@
     <string name="str_no_network">You are not connected to the internet. Please try when you are connected to a network.</string>
     <string name="str_try_now">Try now</string>
 
+    <string name="strMarkAsFav">Add to favorites</string>
+    <string name="strRemoveFromFav">Remove from favorites</string>
 </resources>

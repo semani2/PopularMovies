@@ -27,7 +27,7 @@ public class MoviesProvider extends ContentProvider {
                 MoviesContract.MoviesEntry.TABLE_NAME + " INNER JOIN " +
                         MoviesContract.FavoritesEntry.TABLE_NAME +
                         " ON " + MoviesContract.MoviesEntry.TABLE_NAME +
-                        "." + MoviesContract.MoviesEntry._ID + " = " +
+                        "." + MoviesContract.MoviesEntry.COLUMN_MOVIE_ID + " = " +
                         MoviesContract.FavoritesEntry.TABLE_NAME +
                         "." + MoviesContract.FavoritesEntry.COLUMN_MOVIES_KEY);
     }
@@ -38,11 +38,22 @@ public class MoviesProvider extends ContentProvider {
     private static final String sMovieIdSelection =
             MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry.COLUMN_MOVIE_ID + " = ?";
 
+    private static final String sMovieTrailerByIdSelection =
+            MoviesContract.TrailersEntry.TABLE_NAME + "." + MoviesContract.TrailersEntry.COLUMN_MOVIES_KEY + " = ?";
+
+    private static final String sFavoriteByIdSelection =
+            MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry.COLUMN_MOVIE_ID + " = ?";
+
     static final int MOVIE = 100;
     static final int MOVIE_WITH_SORT = 101;
     static final int MOVIE_FAVORITES = 102;
     static final int MOVIE_ID = 103;
+
     static final int FAVORITE = 200;
+    static final int FAVORITE_MOVIE_ID = 201;
+
+    static final int TRAILER = 300;
+    static final int TRAILERS_FOR_MOVIE = 301;
 
     private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -54,6 +65,10 @@ public class MoviesProvider extends ContentProvider {
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/id/*", MOVIE_ID);
 
         matcher.addURI(authority, MoviesContract.PATH_FAVORITES, FAVORITE);
+        matcher.addURI(authority, MoviesContract.PATH_FAVORITES+ "/*", FAVORITE_MOVIE_ID);
+
+        matcher.addURI(authority, MoviesContract.PATH_TRAILERS, TRAILER);
+        matcher.addURI(authority, MoviesContract.PATH_TRAILERS + "/*", TRAILERS_FOR_MOVIE);
         return matcher;
     }
 
@@ -102,11 +117,53 @@ public class MoviesProvider extends ContentProvider {
                         sortOrder);
                 break;
 
+            case FAVORITE_MOVIE_ID:
+                retCursor = getMovieIsFavorite(uri, projection, sortOrder);
+                break;
+
+            case TRAILER:
+                retCursor = mOpenHelper.getReadableDatabase().query(MoviesContract.TrailersEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+
+            case TRAILERS_FOR_MOVIE:
+                retCursor = getTrailersForMovie(uri, projection, sortOrder);
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
+    }
+
+    private Cursor getMovieIsFavorite(Uri uri, String[] projection, String sortOrder) {
+        String movieId = MoviesContract.TrailersEntry.getMovieIdFromUri(uri);
+
+        return sMoviesFavoriteQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                sFavoriteByIdSelection,
+                new String[]{movieId},
+                null,
+                null,
+                sortOrder);
+    }
+
+    private Cursor getTrailersForMovie(Uri uri, String[] projection, String sortOrder) {
+        String movieId = MoviesContract.TrailersEntry.getMovieIdFromUri(uri);
+
+        return mOpenHelper.getReadableDatabase().query(MoviesContract.TrailersEntry.TABLE_NAME,
+                projection,
+                sMovieTrailerByIdSelection,
+                new String[]{movieId},
+                null,
+                null,
+                sortOrder);
     }
 
     private Cursor getMovieById(Uri uri, String[] projection, String sortOrder) {
@@ -142,6 +199,7 @@ public class MoviesProvider extends ContentProvider {
                 null,
                 sortOrder);
     }
+
 
     @Nullable
     @Override
@@ -195,6 +253,15 @@ public class MoviesProvider extends ContentProvider {
                 break;
             }
 
+            case TRAILER: {
+                long _id = db.insert(MoviesContract.TrailersEntry.TABLE_NAME, null, values);
+                if (_id > 0)
+                    returnUri = MoviesContract.TrailersEntry.buildTrailersUri(_id);
+                else
+                    throw new SQLException("Failed to insert row into " + uri);
+                break;
+            }
+
             default:
                 throw new UnsupportedOperationException("Unknown URI : "+ uri);
         }
@@ -216,6 +283,10 @@ public class MoviesProvider extends ContentProvider {
 
             case FAVORITE:
                 deletedRows = db.delete(MoviesContract.FavoritesEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+
+            case TRAILER:
+                deletedRows = db.delete(MoviesContract.TrailersEntry.TABLE_NAME, selection, selectionArgs);
                 break;
 
             default:
@@ -243,6 +314,10 @@ public class MoviesProvider extends ContentProvider {
                 updatedRows = db.update(MoviesContract.FavoritesEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
 
+            case TRAILER:
+                updatedRows = db.update(MoviesContract.TrailersEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+
             default:
                 throw new UnsupportedOperationException("unknown URI : " + uri);
         }
@@ -258,7 +333,7 @@ public class MoviesProvider extends ContentProvider {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case MOVIE:
+            case MOVIE: {
                 db.beginTransaction();
                 int returnCount = 0;
                 try {
@@ -274,6 +349,26 @@ public class MoviesProvider extends ContentProvider {
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
+            }
+
+            case TRAILER: {
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MoviesContract.TrailersEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            }
+
             default:
                 return super.bulkInsert(uri, values);
         }

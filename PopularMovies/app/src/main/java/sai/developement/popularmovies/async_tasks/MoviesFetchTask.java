@@ -1,4 +1,4 @@
-package sai.developement.popularmovies;
+package sai.developement.popularmovies.async_tasks;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,18 +16,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
 
+import sai.developement.popularmovies.APIKeys;
+import sai.developement.popularmovies.Constants;
 import sai.developement.popularmovies.data.MoviesContract;
-import sai.developement.popularmovies.models.Movie;
 
 /**
  * Created by sai on 10/2/16.
  */
 
-public class MoviesFetchTask extends AsyncTask<String, Void, List<Movie>> {
+public class MoviesFetchTask extends AsyncTask<String, Void, Void> {
     private final String TAG = MoviesFetchTask.class.getSimpleName();
     HttpURLConnection mUrlConnection = null;
     BufferedReader mBufferedReader = null;
@@ -39,7 +38,7 @@ public class MoviesFetchTask extends AsyncTask<String, Void, List<Movie>> {
     }
 
     @Override
-    protected List<Movie> doInBackground(String... params) {
+    protected Void doInBackground(String... params) {
         try {
             String baseURL;
             if(params == null) {
@@ -79,7 +78,8 @@ public class MoviesFetchTask extends AsyncTask<String, Void, List<Movie>> {
                 return null;
             }
 
-            return getMoviesDataFromJSON(stringBuilder.toString(), params[0]);
+            getMoviesDataFromJSON(stringBuilder.toString(), params[0]);
+            return null;
         }
         catch (IOException e) {
             Log.e(TAG, "Error ", e);
@@ -103,9 +103,7 @@ public class MoviesFetchTask extends AsyncTask<String, Void, List<Movie>> {
         }
     }
 
-    private List<Movie> getMoviesDataFromJSON(String moviesJSONString, String sortType) throws JSONException {
-        List<Movie> movieList = new ArrayList<>();
-
+    private void getMoviesDataFromJSON(String moviesJSONString, String sortType) throws JSONException {
         JSONObject moviesJSON = new JSONObject(moviesJSONString);
         JSONArray moviesArray = moviesJSON.getJSONArray(Constants.JSON_RESULTS);
 
@@ -120,7 +118,6 @@ public class MoviesFetchTask extends AsyncTask<String, Void, List<Movie>> {
             final String movieReleaseDate = movieObject.getString(Constants.JSON_RELEASE_DATE);
             final String posterRelativePath = movieObject.getString(Constants.JSON_POSTER_PATH);
 
-            movieList.add(new Movie(movieId, movieTitle, posterRelativePath, moviePlot, movieRating, movieReleaseDate));
             ContentValues movieValues = new ContentValues();
             movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_ID, movieId);
             movieValues.put(MoviesContract.MoviesEntry.COLUMN_MOVIE_PLOT, moviePlot);
@@ -142,7 +139,5 @@ public class MoviesFetchTask extends AsyncTask<String, Void, List<Movie>> {
             ContentValues[] valuesArray = new ContentValues[contentValuesVector.size()];
             mContext.getContentResolver().bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, contentValuesVector.toArray(valuesArray));
         }
-
-        return movieList;
     }
 }

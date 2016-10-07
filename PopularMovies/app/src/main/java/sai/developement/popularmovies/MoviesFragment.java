@@ -28,6 +28,7 @@ import android.widget.GridView;
 import java.util.ArrayList;
 
 import sai.developement.popularmovies.adapters.MoviesAdapter;
+import sai.developement.popularmovies.async_tasks.MoviesFetchTask;
 import sai.developement.popularmovies.data.MoviesContract;
 import sai.developement.popularmovies.models.Movie;
 

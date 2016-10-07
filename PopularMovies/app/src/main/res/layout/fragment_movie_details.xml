@@ -49,6 +49,17 @@
                         android:textSize="@dimen/rating_text_size"
                         android:textStyle="bold"
                         android:layout_marginTop="@dimen/date_rating_margin"/>
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/toggleFavoriteButton"
+                        android:layout_marginTop="10dp"
+                        android:background="@color/colorMovieDetailBckground"
+                        android:textColor="@color/colorWhite"
+                        android:padding="5dp"
+                        android:text="18sp"
+                        android:visibility="gone"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -58,6 +69,44 @@
                 android:id="@+id/textview_movie_plot"
                 android:layout_marginTop="@dimen/details_plot_margin"
                 android:textSize="@dimen/plot_text_size"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/trailersLayout"
+                android:layout_marginTop="10dp">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#888888"
+                    android:id="@+id/separatorView"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Trailers :"
+                    android:layout_marginTop="10dp"
+                    android:textSize="20sp"
+                    android:layout_below="@+id/separatorView"
+                    android:id="@+id/trailersTextView"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:id="@+id/trailersListLayout"
+                    android:layout_marginTop="10dp"
+                    android:layout_below="@id/trailersTextView"/>
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/trailersProgressBar"
+                    android:layout_centerInParent="true"
+                    android:visibility="gone"/>
+
+            </RelativeLayout>
 
         </LinearLayout>
     </LinearLayout>

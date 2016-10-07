@@ -12,10 +12,12 @@ public class Constants {
     /* Constants for the MOVIES Api */
     public static final String POPULAR_MOVIES_URL = "http://api.themoviedb.org/3/movie/popular";
     public static final String TOP_RATED_MOVIES_URL = "http://api.themoviedb.org/3/movie/top_rated";
+    public static final String API_BASE_URL = "http://api.themoviedb.org/3/movie";
     public static final String THUMBNAIL_BASE_URL = "http://image.tmdb.org/t/p/w500/";
     public static final String API_KEY_QUERY_PARAM = "api_key";
     public static final String GET_REQUEST = "GET";
     public static final int MAX_RATING = 10;
+    public static final String VIDEOS = "videos";
 
     /* Constants for JSON parsing */
     public static final String JSON_RESULTS = "results";
@@ -25,6 +27,11 @@ public class Constants {
     public static final String JSON_OVERVIEW = "overview";
     public static final String JSON_TITLE = "title";
     public static final String JSON_RATING = "vote_average";
+    public static final String JSON_TRAILER_KEY = "key";
+    public static final String JSON_TRAILER_NAME = "name";
+
+    /* Constants for Intents */
+    public static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
 
     /* Preferences */
     public static final String PREFERNCE_POPULARITY = "popularity";
@@ -44,7 +51,7 @@ public class Constants {
             MoviesContract.MoviesEntry.COLUMN_MOVIE_PLOT,
             MoviesContract.MoviesEntry.COLUMN_MOVIE_RATING,
             MoviesContract.MoviesEntry.COLUMN_POSTER_URL,
-            MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE
+            MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE,
     };
 
     public static final int COL_ID = 0;
@@ -55,6 +62,22 @@ public class Constants {
     public static final int COL_POSTER_URL = 5;
     public static final int COL_RELEASE_DATE = 6;
 
+    public static final String[] TRAILER_PROJECTION = {
+            MoviesContract.TrailersEntry.TABLE_NAME + "." + MoviesContract.TrailersEntry._ID,
+            MoviesContract.TrailersEntry.TABLE_NAME + "." + MoviesContract.TrailersEntry.COLUMN_NAME,
+            MoviesContract.TrailersEntry.TABLE_NAME + "." + MoviesContract.TrailersEntry.COLUMN_KEY
+    };
 
+    public static final int COL_TRAILER_ID = 0;
+    public static final int COL_TRAILER_NAME = 1;
+    public static final int COL_TRAILER_KEY = 2;
 
+    public static final String[] MOVIE_IS_FAV_PROJECTION = {
+            MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry.COLUMN_MOVIE_ID,
+    };
+
+    public static final int COL_FAV_MOVIE_ID = 0;
+
+    public static final String favoriteDeleteSelectionArgs =
+            MoviesContract.FavoritesEntry.TABLE_NAME + "." + MoviesContract.FavoritesEntry.COLUMN_MOVIES_KEY + " = ?";
 }

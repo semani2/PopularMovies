@@ -4,8 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import static android.webkit.WebSettings.PluginState.ON;
-
 /**
  * Created by sai on 10/1/16.
  */
@@ -45,15 +43,31 @@ public class MoviesDbHelper extends SQLiteOpenHelper{
 
                 MoviesContract.FavoritesEntry.COLUMN_MOVIES_KEY + " TEXT NOT NULL, " +
 
-                "FOREIGN KEY (" + MoviesContract.FavoritesEntry.COLUMN_MOVIES_KEY + ") REFERENCES " +
-                MoviesContract.MoviesEntry.TABLE_NAME + " (" + MoviesContract.MoviesEntry._ID + "));";
+                "UNIQUE (" + MoviesContract.FavoritesEntry.COLUMN_MOVIES_KEY + ") ON CONFLICT REPLACE);";
+
+        final String SQL_CREATE_TRAILERS_TABLE = "CREATE TABLE " + MoviesContract.TrailersEntry.TABLE_NAME + " (" +
+
+                MoviesContract.TrailersEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+
+                MoviesContract.TrailersEntry.COLUMN_NAME + " TEXT, " +
+
+                MoviesContract.TrailersEntry.COLUMN_KEY + " TEXT NOT NULL, " +
+
+                MoviesContract.TrailersEntry.COLUMN_MOVIES_KEY + " TEXT NOT NULL, " +
+
+                "FOREIGN KEY (" + MoviesContract.TrailersEntry.COLUMN_MOVIES_KEY + ") REFERENCES " +
+                MoviesContract.MoviesEntry.TABLE_NAME + "( " + MoviesContract.MoviesEntry.COLUMN_MOVIE_ID + "), " +
+
+                "UNIQUE (" + MoviesContract.TrailersEntry.COLUMN_KEY + ") ON CONFLICT REPLACE);";
 
         db.execSQL(SQL_CREATE_MOVIES_TABLE);
         db.execSQL(SQL_CREATE_FAVORITES_TABLE);
+        db.execSQL(SQL_CREATE_TRAILERS_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + MoviesContract.TrailersEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + MoviesContract.FavoritesEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + MoviesContract.MoviesEntry.TABLE_NAME);
         onCreate(db);
