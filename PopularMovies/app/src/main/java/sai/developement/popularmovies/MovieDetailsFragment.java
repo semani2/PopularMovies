@@ -15,15 +15,13 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -31,6 +29,8 @@ import com.squareup.picasso.Picasso;
 import sai.developement.popularmovies.async_tasks.ReviewsFetchTask;
 import sai.developement.popularmovies.async_tasks.TrailersFetchTask;
 import sai.developement.popularmovies.data.MoviesContract;
+
+import static sai.developement.popularmovies.R.id.trailersLayout;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,28 +50,40 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
 
     private LinearLayout mReviewsListLayout;
 
+    private RelativeLayout mTrailersLayout;
+
+    private RelativeLayout mReviewsLayout;
+
     private Button mToggleFavButton;
 
     private Integer mMovieId = null;
 
     private Boolean isInAddState = null;
 
+    private Uri mUri;
+
+    static final String DETAIL_URI = "URI";
+
     public MovieDetailsFragment() {
-        setHasOptionsMenu(true);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(MOVIE_DETAIL_LOADER, null, this);
         getLoaderManager().initLoader(MOVIE_TRAILER_LOADER, null, this);
         getLoaderManager().initLoader(MOVIE_FAVORITE_LOADER, null, this);
         getLoaderManager().initLoader(MOVIE_REVIEWS_LOADER, null, this);
-        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Bundle arguments  = getArguments();
+        if(arguments != null) {
+            mUri = arguments.getParcelable(DETAIL_URI);
+        }
+
         View v =  inflater.inflate(R.layout.fragment_movie_details, container, false);
 
         mTrailersProgressBar = (ProgressBar) v.findViewById(R.id.trailersProgressBar);
@@ -80,21 +92,6 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         mReviewsProgressBar = (ProgressBar) v.findViewById(R.id.reviewsProgressBar);
 
         return v;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_details_fragment, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.action_settings) {
-            Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
-            startActivity(settingsIntent);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void initMovieView(View v, Cursor data) {
@@ -123,6 +120,14 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             mTrailersListLayout.removeAllViews();
         }
 
+        RelativeLayout trailersLayout = (RelativeLayout) getView().findViewById(R.id.trailersLayout);
+        if(data.getCount() == 0) {
+            trailersLayout.setVisibility(View.GONE);
+        }
+        else {
+            trailersLayout.setVisibility(View.VISIBLE);
+        }
+
         while(data.moveToNext()) {
             final String trailerName = data.getString(Constants.COL_TRAILER_NAME);
             final String youtubeKey = data.getString(Constants.COL_TRAILER_KEY);
@@ -149,6 +154,14 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
     private void initReviewsView(final Cursor data) {
         if(mReviewsListLayout.getChildCount() > 0) {
             mReviewsListLayout.removeAllViews();
+        }
+
+        RelativeLayout reviewsLayout = (RelativeLayout) getView().findViewById(R.id.reviewsLayout);
+        if(data.getCount() == 0) {
+            reviewsLayout.setVisibility(View.GONE);
+        }
+        else {
+            reviewsLayout.setVisibility(View.VISIBLE);
         }
 
         while(data.moveToNext()) {
@@ -254,16 +267,28 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
+        fetchMovieData();
+    }
+
+    private void fetchMovieData() {
+        if(null == mUri) {
+            return;
+        }
+        fetchMovieDetails();
         fetchTrailers();
         fetchReviews();
         fetchIsFavorite();
     }
 
+    private void fetchMovieDetails() {
+        getLoaderManager().restartLoader(MOVIE_DETAIL_LOADER, null, this);
+    }
+
     private void fetchReviews() {
         getLoaderManager().restartLoader(MOVIE_REVIEWS_LOADER, null, this);
-        String movieId = MoviesContract.ReviewsEntry.getMovieIdFromMoviesUri(getActivity().getIntent().getData());
+        String movieId = MoviesContract.ReviewsEntry.getMovieIdFromMoviesUri(mUri);
         if(movieId == null) {
             return;
         }
@@ -281,7 +306,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
 
     private void fetchTrailers() {
         getLoaderManager().restartLoader(MOVIE_TRAILER_LOADER, null, this);
-        String movieId = MoviesContract.TrailersEntry.getMovieIdFromMoviesUri(getActivity().getIntent().getData());
+        String movieId = MoviesContract.TrailersEntry.getMovieIdFromMoviesUri(mUri);
         if(movieId == null) {
             return;
         }
@@ -295,14 +320,14 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if(getActivity().getIntent() == null) {
+        if(null == mUri) {
             return null;
         }
 
         switch (id) {
             case MOVIE_DETAIL_LOADER: {
                 return new CursorLoader(getActivity(),
-                        getActivity().getIntent().getData(),
+                        mUri,
                         Constants.MOVIE_PROJECTION,
                         null,
                         null,
@@ -310,7 +335,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             }
 
             case MOVIE_TRAILER_LOADER: {
-                String movieId = MoviesContract.TrailersEntry.getMovieIdFromMoviesUri(getActivity().getIntent().getData());
+                String movieId = MoviesContract.TrailersEntry.getMovieIdFromMoviesUri(mUri);
                 return new CursorLoader(getActivity(),
                         MoviesContract.TrailersEntry.buildGetTrailersUri(movieId),
                         Constants.TRAILER_PROJECTION,
@@ -320,7 +345,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             }
 
             case MOVIE_FAVORITE_LOADER: {
-                String movieId = MoviesContract.TrailersEntry.getMovieIdFromMoviesUri(getActivity().getIntent().getData());
+                String movieId = MoviesContract.TrailersEntry.getMovieIdFromMoviesUri(mUri);
                 return new CursorLoader(getActivity(),
                         MoviesContract.FavoritesEntry.getMovieIsFavorite(movieId),
                         Constants.MOVIE_IS_FAV_PROJECTION,
@@ -330,7 +355,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             }
 
             case MOVIE_REVIEWS_LOADER: {
-                String movieId = MoviesContract.ReviewsEntry.getMovieIdFromMoviesUri(getActivity().getIntent().getData());
+                String movieId = MoviesContract.ReviewsEntry.getMovieIdFromMoviesUri(mUri);
                 return new CursorLoader(getActivity(),
                         MoviesContract.ReviewsEntry.buildGetReviewsUri(movieId),
                         Constants.REVIEW_PROJECTION,

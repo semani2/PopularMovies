@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
+    android:id="@+id/movies_fragment"
+    android:name="sai.developement.popularmovies.MoviesFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="sai.developement.popularmovies.MainActivity">
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/fragment_container" />
-</RelativeLayout>
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    tools:context=".MoviesFragment"
+    tools:layout="@android:layout/list_content" />

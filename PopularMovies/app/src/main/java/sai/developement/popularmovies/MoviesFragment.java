@@ -80,9 +80,8 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 if(cursor != null) {
-                    Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                    intent.setData(MoviesContract.MoviesEntry.buildGetMovie(cursor.getString(Constants.COL_MOVIE_ID)));
-                    startActivity(intent);
+                    ((Callback)getActivity()).onItemSelected(MoviesContract.MoviesEntry.
+                            buildGetMovie(cursor.getString(Constants.COL_MOVIE_ID)));
                 }
             }
         });
@@ -91,8 +90,11 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
+    }
+
+    public void onSortPreferenceChanged(){
         updateMovies();
     }
 
@@ -117,7 +119,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         return super.onOptionsItemSelected(item);
     }
 
-    public void updateMovies() {
+    private void updateMovies() {
         getLoaderManager().restartLoader(MOVIES_LOADER_ID, null, this);
         String sortPref = PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getString(getString(R.string.str_setting_sort_key),
@@ -186,10 +188,15 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
             return;
         }
         mMoviesAdapter.swapCursor((Cursor) data);
+        mMoviesGridView.performItemClick(mMoviesGridView.getChildAt(0), 0, mMoviesAdapter.getItemId(0));
     }
 
     @Override
     public void onLoaderReset(Loader loader) {
         mMoviesAdapter.swapCursor(null);
+    }
+
+    public interface Callback {
+        void onItemSelected(Uri movieUri);
     }
 }
