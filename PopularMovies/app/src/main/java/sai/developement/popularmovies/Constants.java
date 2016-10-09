@@ -40,6 +40,7 @@ public class Constants {
     /* Parcelable Constants */
     public static final String PARCEL_MOVIES_LIST = "movies";
     public static final String PARCEL_MOVIE = "movie";
+    public static final String PARCEL_MOVIE_SELECTED_POSITION = "selected_position";
 
     /* SORT ORDER FOR DB */
     public static final String SORT_POPULARITY = "popularity";

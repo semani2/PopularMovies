@@ -65,4 +65,18 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Ca
             startActivity(intent);
         }
     }
+
+    @Override
+    public void resetDetails() {
+        if(mTwoPane) {
+            MovieDetailsFragment detailsFragment = (MovieDetailsFragment) getSupportFragmentManager().findFragmentByTag(DETAIL_FRAGMENT_TAG);
+            if(detailsFragment != null) {
+                detailsFragment.hideDetailsView();
+            }
+        }
+    }
+
+    public boolean getIsTwoPane() {
+        return mTwoPane;
+    }
 }

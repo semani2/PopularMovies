@@ -22,8 +22,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -41,7 +44,8 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int MOVIES_LOADER_ID = 1;
     private GridView mMoviesGridView;
     private MoviesAdapter mMoviesAdapter;
-    private ArrayList<Movie> mMoviesList = new ArrayList<>();
+
+    private int mSelectedPosition = 0;
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -61,9 +65,6 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        if(savedInstanceState != null && savedInstanceState.containsKey(Constants.PARCEL_MOVIES_LIST)) {
-            mMoviesList = savedInstanceState.getParcelableArrayList(Constants.PARCEL_MOVIES_LIST);
-        }
     }
 
     @Override
@@ -73,6 +74,9 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         mMoviesGridView = (GridView) v.findViewById(R.id.gridview_movies);
 
         mMoviesAdapter = new MoviesAdapter(getContext(), null, 0);
+
+        mMoviesGridView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+
         mMoviesGridView.setAdapter(mMoviesAdapter);
 
         mMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -82,26 +86,34 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
                 if(cursor != null) {
                     ((Callback)getActivity()).onItemSelected(MoviesContract.MoviesEntry.
                             buildGetMovie(cursor.getString(Constants.COL_MOVIE_ID)));
+                    mSelectedPosition = position;
                 }
             }
         });
 
+        if(savedInstanceState != null && savedInstanceState.containsKey(Constants.PARCEL_MOVIE_SELECTED_POSITION)) {
+            mSelectedPosition = savedInstanceState.getInt(Constants.PARCEL_MOVIE_SELECTED_POSITION);
+        }
+
         return v;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
     public void onSortPreferenceChanged(){
+        mSelectedPosition = GridView.INVALID_POSITION;
         updateMovies();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(Constants.PARCEL_MOVIES_LIST, mMoviesList);
+        if(mSelectedPosition != GridView.INVALID_POSITION) {
+            outState.putInt(Constants.PARCEL_MOVIE_SELECTED_POSITION, mSelectedPosition);
+        }
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override
@@ -125,7 +137,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
                 .getString(getString(R.string.str_setting_sort_key),
                         getString(R.string.setting_sort_def_value));
 
-        if(mMoviesList.size() == 0 || !sortPref.equalsIgnoreCase(getString(R.string.setting_sort_favorites_value))) {
+        if(!sortPref.equalsIgnoreCase(getString(R.string.setting_sort_favorites_value))) {
             if(isNetworkAvailable()) {
                 new MoviesFetchTask(getContext())
                         .execute(sortPref);
@@ -188,7 +200,15 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
             return;
         }
         mMoviesAdapter.swapCursor((Cursor) data);
-        mMoviesGridView.performItemClick(mMoviesGridView.getChildAt(0), 0, mMoviesAdapter.getItemId(0));
+        if(((MainActivity)getActivity()).getIsTwoPane() && ((Cursor)data).getCount() > 0) {
+            mSelectedPosition = mSelectedPosition != GridView.INVALID_POSITION ? mSelectedPosition : 0;
+            mMoviesGridView.performItemClick(mMoviesGridView.getChildAt(mSelectedPosition), mSelectedPosition, mMoviesAdapter.getItemId(mSelectedPosition));
+            mMoviesGridView.setItemChecked(mSelectedPosition, true);
+            mMoviesGridView.smoothScrollToPosition(mSelectedPosition);
+        }
+        else {
+            ((Callback)getActivity()).resetDetails();
+        }
     }
 
     @Override
@@ -198,5 +218,6 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     public interface Callback {
         void onItemSelected(Uri movieUri);
+        void resetDetails();
     }
 }

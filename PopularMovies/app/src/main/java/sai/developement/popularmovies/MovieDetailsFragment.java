@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -29,8 +30,6 @@ import com.squareup.picasso.Picasso;
 import sai.developement.popularmovies.async_tasks.ReviewsFetchTask;
 import sai.developement.popularmovies.async_tasks.TrailersFetchTask;
 import sai.developement.popularmovies.data.MoviesContract;
-
-import static sai.developement.popularmovies.R.id.trailersLayout;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -62,6 +61,8 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
 
     private Uri mUri;
 
+    private ScrollView mDetailsLayout;
+
     static final String DETAIL_URI = "URI";
 
     public MovieDetailsFragment() {
@@ -90,8 +91,15 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         mTrailersListLayout = (LinearLayout) v.findViewById(R.id.trailersListLayout);
         mReviewsListLayout = (LinearLayout) v.findViewById(R.id.reviewsListLayout);
         mReviewsProgressBar = (ProgressBar) v.findViewById(R.id.reviewsProgressBar);
+        mDetailsLayout = (ScrollView) v.findViewById(R.id.movie_details_layout);
+
+        mDetailsLayout.setVisibility(View.VISIBLE);
 
         return v;
+    }
+
+    public void hideDetailsView() {
+        mDetailsLayout.setVisibility(View.GONE);
     }
 
     private void initMovieView(View v, Cursor data) {
@@ -105,6 +113,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         TextView moviePlotTextView = (TextView) v.findViewById(R.id.textview_movie_plot);
         ImageView movieThumbnailImageView = (ImageView) v.findViewById(R.id.imageview_movie_poster);
 
+        movieTitleTextView.setVisibility(View.VISIBLE);
         movieTitleTextView.setText(data.getString(Constants.COL_MOVIE_TITLE));
         movieRatingTextView.setText(String.valueOf(data.getDouble(Constants.COL_MOVIE_RATING)).concat("/").concat(String.valueOf(Constants.MAX_RATING)));
         moviePlotTextView.setText(data.getString(Constants.COL_MOVIE_PLOT));

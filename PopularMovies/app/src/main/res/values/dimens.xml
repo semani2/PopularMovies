@@ -18,4 +18,5 @@
     <dimen name="plot_text_size">18sp</dimen>
 
     <dimen name="review_textview_def_height">100dp</dimen>
+    <dimen name="poster_imageview_padding">0dp</dimen>
 </resources>

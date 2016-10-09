@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingBottom="@dimen/layout_padding"
-    tools:context="sai.developement.popularmovies.MovieDetailsFragment">
+    tools:context="sai.developement.popularmovies.MovieDetailsFragment"
+    android:id="@+id/movie_details_layout">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,7 +13,8 @@
         android:orientation="vertical">
         <TextView
             style="@style/MovieDetailsTitleTextView"
-            android:id="@+id/textview_movie_title" />
+            android:id="@+id/textview_movie_title"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -75,7 +77,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:id="@+id/trailersLayout"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="10dp"
+                android:visibility="gone">
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -113,7 +116,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:id="@+id/reviewsLayout"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="10dp"
+                android:visibility="gone">
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
