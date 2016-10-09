@@ -3,8 +3,12 @@ package sai.developement.popularmovies;
 import android.content.Intent;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.ShareActionProvider;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity implements MoviesFragment.Callback{
 
@@ -13,6 +17,10 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Ca
     private static final String DETAIL_FRAGMENT_TAG = "MovieDetail_Fragment";
 
     private String mSortSetting = null;
+
+    private MenuItem mShareMenuItem;
+
+    private ShareActionProvider mShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +82,22 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Ca
                 detailsFragment.hideDetailsView();
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_activity_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.action_settings) {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public boolean getIsTwoPane() {

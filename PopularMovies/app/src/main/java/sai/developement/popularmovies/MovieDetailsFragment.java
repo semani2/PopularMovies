@@ -14,7 +14,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -53,6 +58,8 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
 
     private RelativeLayout mReviewsLayout;
 
+    private ShareActionProvider mShareActionProvider;
+
     private Button mToggleFavButton;
 
     private Integer mMovieId = null;
@@ -65,7 +72,10 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
 
     static final String DETAIL_URI = "URI";
 
+    private String mYoutubeShareUrl = null;
+
     public MovieDetailsFragment() {
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -385,6 +395,12 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
 
             case MOVIE_TRAILER_LOADER:
                 initTrailersView(data);
+                if(data.getCount() > 0) {
+                    data.moveToFirst();
+                    String youtubeKey = data.getString(Constants.COL_TRAILER_KEY);
+                    mYoutubeShareUrl = Constants.YOUTUBE_BASE_URL.concat(youtubeKey);
+                    getActivity().invalidateOptionsMenu();
+                }
                 return;
 
             case MOVIE_FAVORITE_LOADER:
@@ -412,4 +428,26 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_movie_details, menu);
+        MenuItem shareItem = menu.findItem(R.id.action_share);
+
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+        if(mShareActionProvider != null && mYoutubeShareUrl != null) {
+            mShareActionProvider.setShareIntent(getYoutubeShareIntent());
+        }
+        else {
+            shareItem.setVisible(false);
+        }
+    }
+
+    private Intent getYoutubeShareIntent() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        intent.putExtra(Intent.EXTRA_TEXT, mYoutubeShareUrl);
+        intent.setType("text/plain");
+        return intent;
+    }
 }

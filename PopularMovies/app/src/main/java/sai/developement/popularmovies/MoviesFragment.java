@@ -3,7 +3,6 @@ package sai.developement.popularmovies;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -19,21 +18,15 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
 
 import sai.developement.popularmovies.adapters.MoviesAdapter;
 import sai.developement.popularmovies.async_tasks.MoviesFetchTask;
 import sai.developement.popularmovies.data.MoviesContract;
-import sai.developement.popularmovies.models.Movie;
 
 
 /**
@@ -77,6 +70,8 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
         mMoviesGridView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 
+        mMoviesGridView.setEmptyView(v.findViewById(R.id.empty_view));
+
         mMoviesGridView.setAdapter(mMoviesAdapter);
 
         mMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -118,18 +113,10 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_movies_fragment, menu);
+        inflater.inflate(R.menu.menu_activity_main, menu);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.action_settings) {
-            Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
-            startActivity(settingsIntent);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+
 
     private void updateMovies() {
         getLoaderManager().restartLoader(MOVIES_LOADER_ID, null, this);

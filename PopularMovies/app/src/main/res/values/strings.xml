@@ -35,4 +35,8 @@
     <string name="strReview">Review</string>
     <string name="strShowMore">Show more&#8230;</string>
     <string name="strShowLess">Show less&#8230;</string>
+
+    <string name="strNoMoviesForSelectedPreference">Your selected sort preference has no movies!</string>
+
+    <string name="strShare">Share</string>
 </resources>
