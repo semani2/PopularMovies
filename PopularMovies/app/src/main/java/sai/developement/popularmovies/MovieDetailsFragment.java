@@ -32,9 +32,12 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.greenrobot.eventbus.EventBus;
+
 import sai.developement.popularmovies.async_tasks.ReviewsFetchTask;
 import sai.developement.popularmovies.async_tasks.TrailersFetchTask;
 import sai.developement.popularmovies.data.MoviesContract;
+import sai.developement.popularmovies.events.FavoritesChangedEvent;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -272,6 +275,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
                     // Remove from favorites
                     getContext().getContentResolver().delete(MoviesContract.FavoritesEntry.CONTENT_URI, Constants.favoriteDeleteSelectionArgs, new String[]{String.valueOf(mMovieId)});
                 }
+                EventBus.getDefault().post(new FavoritesChangedEvent());
                 getLoaderManager().restartLoader(MOVIE_FAVORITE_LOADER, null, MovieDetailsFragment.this);
             }
         });
@@ -312,7 +316,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             return;
         }
 
-        if(isNetworkAvailable()) {
+        if(Utils.isNetworkAvailable(getContext())) {
             mReviewsProgressBar.setVisibility(View.VISIBLE);
             new ReviewsFetchTask(getContext())
                     .execute(movieId);
@@ -330,7 +334,7 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
             return;
         }
 
-        if(isNetworkAvailable()) {
+        if(Utils.isNetworkAvailable(getContext())) {
             mTrailersProgressBar.setVisibility(View.VISIBLE);
             new TrailersFetchTask(getContext())
                     .execute(movieId);
@@ -415,17 +419,6 @@ public class MovieDetailsFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         // Nothing to do here
-    }
-
-    /*
-    Code snippet taken from:
-    http://stackoverflow.com/questions/4238921/detect-whether-there-is-an-internet-connection-available-on-android
-     */
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     @Override
