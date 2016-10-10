@@ -39,4 +39,7 @@
     <string name="strNoMoviesForSelectedPreference">Your selected sort preference has no movies!</string>
 
     <string name="strShare">Share</string>
+
+    <string name="strTrailers">Trailers</string>
+    <string name="strReviews">Reviews</string>
 </resources>
