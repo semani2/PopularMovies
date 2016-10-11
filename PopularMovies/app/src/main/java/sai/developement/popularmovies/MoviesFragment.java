@@ -38,6 +38,8 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     private EventBus mEventBus;
 
+    private String mSortSetting = null;
+
     public MoviesFragment() {
         // Required empty public constructor
     }
@@ -85,11 +87,30 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
             }
         });
 
-        if(savedInstanceState != null && savedInstanceState.containsKey(Constants.PARCEL_MOVIE_SELECTED_POSITION)) {
+        if(savedInstanceState != null && savedInstanceState.containsKey(Constants.PARCEL_MOVIE_SELECTED_POSITION)
+                && savedInstanceState.containsKey(Constants.PARCEL_MOVIE_SORT_SELECTION)) {
             mSelectedPosition = savedInstanceState.getInt(Constants.PARCEL_MOVIE_SELECTED_POSITION);
+            mSortSetting = savedInstanceState.getString(Constants.PARCEL_MOVIE_SORT_SELECTION);
+            getLoaderManager().restartLoader(MOVIES_LOADER_ID, null, this);
         }
 
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        String preference = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.str_setting_sort_key),
+                        getString(R.string.setting_sort_def_value));
+
+        if(!preference.equalsIgnoreCase(mSortSetting)) {
+            MoviesFragment moviesFragment = (MoviesFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.movies_fragment);
+            if(moviesFragment != null) {
+                moviesFragment.onSortPreferenceChanged();
+            }
+            mSortSetting = preference;
+        }
     }
 
     public void onSortPreferenceChanged(){
@@ -102,12 +123,8 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         if(mSelectedPosition != GridView.INVALID_POSITION) {
             outState.putInt(Constants.PARCEL_MOVIE_SELECTED_POSITION, mSelectedPosition);
         }
+        outState.putString(Constants.PARCEL_MOVIE_SORT_SELECTION, mSortSetting);
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     private void updateMovies() {

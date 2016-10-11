@@ -38,22 +38,6 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Ca
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        String preference = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(getString(R.string.str_setting_sort_key),
-                        getString(R.string.setting_sort_def_value));
-
-        if(!preference.equalsIgnoreCase(mSortSetting)) {
-            MoviesFragment moviesFragment = (MoviesFragment) getSupportFragmentManager().findFragmentById(R.id.movies_fragment);
-            if(moviesFragment != null) {
-                moviesFragment.onSortPreferenceChanged();
-            }
-            mSortSetting = preference;
-        }
-    }
-
-    @Override
     public void onItemSelected(Uri movieUri) {
         if(mTwoPane) {
             Bundle args = new Bundle();

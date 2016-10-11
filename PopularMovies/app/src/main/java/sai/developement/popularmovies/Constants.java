@@ -41,6 +41,7 @@ public class Constants {
     public static final String PARCEL_MOVIES_LIST = "movies";
     public static final String PARCEL_MOVIE = "movie";
     public static final String PARCEL_MOVIE_SELECTED_POSITION = "selected_position";
+    public static final String PARCEL_MOVIE_SORT_SELECTION = "selected_sort";
 
     /* SORT ORDER FOR DB */
     public static final String SORT_POPULARITY = "popularity";
