@@ -2,12 +2,13 @@ package sai.developement.popularmovies;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import sai.developement.popularmovies.sync.MoviesSyncAdapter;
 
 public class MainActivity extends AppCompatActivity implements MoviesFragment.Callback{
 
@@ -35,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Ca
         } else {
             mTwoPane = false;
         }
+
+        MoviesSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override
@@ -78,6 +81,10 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Ca
         if(item.getItemId() == R.id.action_settings) {
             Intent settingsIntent = new Intent(this, SettingsActivity.class);
             startActivity(settingsIntent);
+            return true;
+        }
+        else if(item.getItemId() == R.id.action_refresh) {
+            MoviesSyncAdapter.syncImmediately(this);
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -20,9 +20,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import sai.developement.popularmovies.adapters.MoviesAdapter;
-import sai.developement.popularmovies.async_tasks.MoviesFetchTask;
 import sai.developement.popularmovies.data.MoviesContract;
 import sai.developement.popularmovies.events.FavoritesChangedEvent;
+import sai.developement.popularmovies.sync.MoviesSyncAdapter;
 
 
 /**
@@ -128,17 +128,13 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     private void updateMovies() {
-        getLoaderManager().restartLoader(MOVIES_LOADER_ID, null, this);
         String sortPref = PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getString(getString(R.string.str_setting_sort_key),
                         getString(R.string.setting_sort_def_value));
-
         if(!sortPref.equalsIgnoreCase(getString(R.string.setting_sort_favorites_value))) {
-            if(Utils.isNetworkAvailable(getContext())) {
-                new MoviesFetchTask(getContext())
-                        .execute(sortPref);
-            }
+            MoviesSyncAdapter.syncImmediately(getActivity());
         }
+        getLoaderManager().restartLoader(MOVIES_LOADER_ID, null, this);
     }
 
     @Override
