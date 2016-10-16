@@ -4,6 +4,7 @@
 
     <!-- Menu items -->
     <string name="str_action_settings">Settings</string>
+    <string name="str_action_refresh">Refresh</string>
 
     <!-- Preference Settings Strings -->
 
@@ -42,4 +43,7 @@
 
     <string name="strTrailers">Trailers</string>
     <string name="strReviews">Reviews</string>
+
+    <string name="sync_account_type">popularmovies.development.sai</string>
+    <string name="content_authority">sai.development.popularmovies</string>
 </resources>
